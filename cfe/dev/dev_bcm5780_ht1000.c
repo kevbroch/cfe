@@ -1,14 +1,11 @@
 /*  *********************************************************************
     *  Broadcom Common Firmware Environment (CFE)
-    *  
-    *  PCI device selection and initialization		File: pci_devs.c
-    *  
-    *  These are the routines to include the PCI drivers and to hook any
-    *  devices with special configuration requirements..
+    *
+    *  HT1000 Bridge Support			File: dev_bcm5780_ht1000.c
     *  
     *********************************************************************  
     *
-    *  Copyright 2000,2001,2002,2003
+    *  Copyright 2002,2003
     *  Broadcom Corporation. All rights reserved.
     *  
     *  This software is furnished under license and may be used and 
@@ -43,49 +40,52 @@
     *     THE POSSIBILITY OF SUCH DAMAGE.
     ********************************************************************* */
 
-
-#if CFG_PCI
 #include "cfe.h"
-#include "dev_ide.h"
-#include "env_subr.h"
+#include "lib_types.h"
+#include "lib_physio.h"
 
-extern cfe_driver_t pciidedrv;			/* PCI IDE controller */
-extern cfe_driver_t tulipdrv;                   /* Tulip Ethernet */
-extern cfe_driver_t dp83815drv;                 /* MacPhyter Ethernet */
-extern cfe_driver_t bcm4401drv;                 /* 4710 Ethernet */
-extern cfe_driver_t bcm5700drv;                 /* Tigon 3 Ethernet */
+#include "pcireg.h"
+#include "pcivar.h"
+#include "pci_internal.h"
 
-extern cfe_driver_t i82559drv;                  /* Intel PRO/100 Ethernet */
+void bcm5780devs_enable_preset(pcitag_t tag);
 
-extern cfe_driver_t frododrv;                   /* Frodo Support */
+/* BCM5780 (HT1000) specific definitions */
 
-#if CFG_DOWNLOAD
-extern cfe_driver_t bcm1250drv;                 /* BCM1250 as a device */
-#endif
-extern cfe_driver_t ns16550pci_uart;            /* PCI serial port */
+/* BCM5780 specific registers */
 
-void pci_add_devices(int init_pci);
-void pci_add_devices(int init_pci)
+/* BCM5780 configuration registers */
+
+#define BCM5780_HOST_CFG_FEATURE_ENABLE0      0x0064
+#define BCM5780_H0ST_FE0_USB_ENABLE           (1 <<  8)
+#define BCM5780_H0ST_FE0_IDE_ENABLE           (1 << 14)
+
+#define BCM5780_HOST_CFG_FEATURE_ENABLE2      0x0084
+#define BCM5780_H0ST_FE2_SATA_ENABLE          (1 << 0)
+
+
+void bcm5780devs_enable_preset(pcitag_t tag)
 {
-     if (init_pci) {
-	 cfe_add_device(&pciidedrv,0,IDE_PROBE_MASTER_TYPE(IDE_DEVTYPE_DISK),NULL);
-	 cfe_add_device(&tulipdrv,0,0,env_getenv("TULIP0_HWADDR"));
-	 cfe_add_device(&dp83815drv,0,0,NULL);
-	 cfe_add_device(&bcm4401drv,0,0,NULL);
-	 cfe_add_device(&bcm5700drv,0,0,NULL);
-
-	 cfe_add_device(&i82559drv,0,0,NULL);
-
-     /* Added HT1000 support devices */
-     cfe_add_device(&frododrv,0,0,NULL);
+    pcireg_t ctrl;
 
 
-#if CFG_DOWNLOAD
-	 /* Access to bcm1250 in PCI device mode */
-	 cfe_add_device(&bcm1250drv,0,0,NULL);
-#endif
-	 cfe_add_device(&ns16550pci_uart,0,0,0);
-	 }
+    printf("BCM5780 (HT1000) PCI bridge discovered.  Enabling devices...\n");
+    /* 
+     * Enable BCM5780 - HT1000 devices supported under CFE 
+     */
+    ctrl = pci_conf_read(tag, BCM5780_HOST_CFG_FEATURE_ENABLE0);
+    /* Enable Single Channel IDE support */
+    ctrl |= BCM5780_H0ST_FE0_IDE_ENABLE;
+    /* Enable USB support */
+    ctrl |= BCM5780_H0ST_FE0_USB_ENABLE;
+    pci_conf_write(tag, BCM5780_HOST_CFG_FEATURE_ENABLE0, ctrl);
+    ctrl = pci_conf_read(tag, BCM5780_HOST_CFG_FEATURE_ENABLE0);   /* push */
+
+
+    ctrl = pci_conf_read(tag, BCM5780_HOST_CFG_FEATURE_ENABLE2);
+    /* Enable Frodo SATA support */
+    ctrl |= BCM5780_H0ST_FE2_SATA_ENABLE;
+    pci_conf_write(tag, BCM5780_HOST_CFG_FEATURE_ENABLE2, ctrl);
+    ctrl = pci_conf_read(tag, BCM5780_HOST_CFG_FEATURE_ENABLE2);   /* push */
 }
-#endif /* CFG_PCI */
 

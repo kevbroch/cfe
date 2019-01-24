@@ -61,6 +61,9 @@
 
 #include "dev_newflash.h"
 
+//QQQ
+//#undef CFG_USB
+
 /*  *********************************************************************
     *  Devices we're importing
     ********************************************************************* */
@@ -75,6 +78,15 @@ extern void pci_add_devices(int init);
 #if CFG_TCP
 extern cfe_driver_t tcpconsole;			/* TCP/IP console */
 #endif
+#if CFG_USB
+static void board_usb_init(void);
+extern int usb_init(uint32_t addr);
+extern cfe_driver_t usb_disk;
+extern cfe_driver_t usb_uart;			/* USB serial ports */
+extern cfe_driver_t usb_ether;			/* USB ethernet */
+extern int ui_init_usbcmds(void);
+#endif
+
 
 extern cfe_smbus_t sb1250_smbus;       		/* SiByte SMBus host */
 
@@ -333,9 +345,19 @@ void board_device_init(void)
 #endif
     cfe_add_device(&sb1250_ether,A_MAC_BASE_3,3,env_getenv("ETH3_HWADDR"));
 
+
 #if CFG_PCI
     pci_add_devices(cfe_startflags & CFE_INIT_PCI);
 #endif
+
+#if CFG_USB
+    board_usb_init();
+    usb_init(NULL);   /* Discover registers dynamically */
+    cfe_add_device(&usb_disk,0,0,0);
+    cfe_add_device(&usb_uart,0,0,0);
+    cfe_add_device(&usb_ether,0,0,0);
+#endif
+  
 
     /*
      * Real-time clock
@@ -364,7 +386,7 @@ void board_device_init(void)
     printf("Switch Clock: %dMHz\n",
 	   (cfe_cpu_speed * 2 / 1000000) / ((int)G_BCM1480_SYS_SW_DIV(syscfg)));
 
-    if (G_BCM1480_SYS_NODEID(syscfg) != 0) {
+                                                                                                             if (G_BCM1480_SYS_NODEID(syscfg) != 0) {
 	printf("Node Id: %d\n", G_BCM1480_SYS_NODEID(syscfg));
 	}
 
@@ -375,7 +397,9 @@ void board_device_init(void)
 #if CFG_TCP
     cfe_add_device(&tcpconsole,0,0,0);
 #endif
+
 }
+
 
 
 
@@ -439,6 +463,10 @@ void board_final_init(void)
     ui_init_ccncmds();
 #endif
 
+#if CFG_USB
+    ui_init_usbcmds();
+#endif
+ 
     if ((board_config & BOARD_CFG_DO_STARTUP) != 0) {
 	/* Change STARTUP's flags so it can run or error message if not set */
 	if (env_getenv("STARTUP") == NULL) {
@@ -459,5 +487,24 @@ void board_final_init(void)
 	    }
 	}
 }
+
+#if CFG_USB
+/*  *********************************************************************
+    *  board_usb_init()
+    *  
+    *  Turn on the OHCI controller at the core.
+    *  
+    *  Input parameters: 
+    *  	   nothing
+    *  	   
+    *  Return value:
+    *  	   nothing
+    ********************************************************************* */
+static void board_usb_init(void)
+{
+
+}
+#endif
+
 
 

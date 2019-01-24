@@ -562,7 +562,7 @@ show_cpu_type_bcm1480(char *cpuname, uint64_t syscfg, uint64_t sysrev)
     printf("CPU: %s %s, %d cpu%s", cpuname, revprintstr, enabled_cpus,
            enabled_cpus == 1 ? "" : "s");
     if (G_SYS_NUM_CPUS(sysrev) != enabled_cpus)
-	printf(" enabled (%d disabled by software)",
+	printf(" enabled (%d disabled - fused)",
 	       G_SYS_NUM_CPUS(sysrev) - enabled_cpus);
     printf("\n");
 

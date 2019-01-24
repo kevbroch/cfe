@@ -2,46 +2,46 @@
     *  BCM1255/BCM1280/BCM1455/BCM1480 Board Support Package
     *
     *  Register Definitions                     File: bcm1480_regs.h
-    *  
+    *
     *  This module contains the addresses of the on-chip peripherals
     *  on the BCM1280 and BCM1480.
-    *  
+    *
     *  BCM1480 specification level:  1X55_1X80-UM100-D4 (11/24/03)
-    *  
-    *********************************************************************  
+    *
+    *********************************************************************
     *
     *  Copyright 2000,2001,2002,2003,2004
     *  Broadcom Corporation. All rights reserved.
-    *  
-    *  This software is furnished under license and may be used and 
-    *  copied only in accordance with the following terms and 
-    *  conditions.  Subject to these conditions, you may download, 
-    *  copy, install, use, modify and distribute modified or unmodified 
-    *  copies of this software in source and/or binary form.  No title 
+    *
+    *  This software is furnished under license and may be used and
+    *  copied only in accordance with the following terms and
+    *  conditions.  Subject to these conditions, you may download,
+    *  copy, install, use, modify and distribute modified or unmodified
+    *  copies of this software in source and/or binary form.  No title
     *  or ownership is transferred hereby.
-    *  
-    *  1) Any source code used, modified or distributed must reproduce 
-    *     and retain this copyright notice and list of conditions 
+    *
+    *  1) Any source code used, modified or distributed must reproduce
+    *     and retain this copyright notice and list of conditions
     *     as they appear in the source file.
-    *  
-    *  2) No right is granted to use any trade name, trademark, or 
-    *     logo of Broadcom Corporation.  The "Broadcom Corporation" 
-    *     name may not be used to endorse or promote products derived 
-    *     from this software without the prior written permission of 
+    *
+    *  2) No right is granted to use any trade name, trademark, or
+    *     logo of Broadcom Corporation.  The "Broadcom Corporation"
+    *     name may not be used to endorse or promote products derived
+    *     from this software without the prior written permission of
     *     Broadcom Corporation.
-    *  
+    *
     *  3) THIS SOFTWARE IS PROVIDED "AS-IS" AND ANY EXPRESS OR
     *     IMPLIED WARRANTIES, INCLUDING BUT NOT LIMITED TO, ANY IMPLIED
-    *     WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-    *     PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED. IN NO EVENT 
-    *     SHALL BROADCOM BE LIABLE FOR ANY DAMAGES WHATSOEVER, AND IN 
+    *     WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+    *     PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED. IN NO EVENT
+    *     SHALL BROADCOM BE LIABLE FOR ANY DAMAGES WHATSOEVER, AND IN
     *     PARTICULAR, BROADCOM SHALL NOT BE LIABLE FOR DIRECT, INDIRECT,
-    *     INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+    *     INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
     *     (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
     *     GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
-    *     BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY 
-    *     OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR 
-    *     TORT (INCLUDING NEGLIGENCE OR OTHERWISE), EVEN IF ADVISED OF 
+    *     BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+    *     OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+    *     TORT (INCLUDING NEGLIGENCE OR OTHERWISE), EVEN IF ADVISED OF
     *     THE POSSIBILITY OF SUCH DAMAGE.
     ********************************************************************* */
 
@@ -60,7 +60,7 @@
 
 /*  *********************************************************************
     *  Some general notes:
-    *  
+    *
     *  Register addresses are grouped by function and follow the order
     *  of the User Manual.
     *
@@ -69,7 +69,7 @@
     *  offsets from the base of each peripheral.  For example,
     *  the MAC registers are described as offsets from the first
     *  MAC register, and there will be a MAC_REGISTER() macro
-    *  to calculate the base address of a given MAC.  
+    *  to calculate the base address of a given MAC.
     *
     *  The information in this file is based on the BCM1X55/BCM1X80
     *  User Manual, Document 1X55_1X80-UM100-R, 22/12/03.
@@ -78,21 +78,21 @@
     *  BCM1250 and the new BCM1480 (and derivatives) share many common
     *  features, this file contains only what's new or changed from
     *  the 1250.  (above, you can see that we include the 1250 symbols
-    *  to get the base functionality).  
+    *  to get the base functionality).
     *
-    *  In software, be sure to use the correct symbols, particularly 
+    *  In software, be sure to use the correct symbols, particularly
     *  for blocks that are different between the two chip families.
     *  All BCM1480-specific symbols have _BCM1480_ in their names,
-    *  and all BCM1250-specific and "base" functions that are common in 
+    *  and all BCM1250-specific and "base" functions that are common in
     *  both chips have no special names (this is for compatibility with
     *  older include files).  Therefore, if you're working with the
     *  SCD, which is very different on each chip, A_SCD_xxx implies
     *  the BCM1250 version and A_BCM1480_SCD_xxx implies the BCM1480
-    *  version.  
+    *  version.
     ********************************************************************* */
 
 
-/*  ********************************************************************* 
+/*  *********************************************************************
     * Memory Controller Registers (Section 6)
     ********************************************************************* */
 
@@ -152,7 +152,7 @@
 #define A_BCM1480_MC_GLB_ECC_CORRECT        0x0010054180
 #define A_BCM1480_MC_GLB_PERF_CNT_CONTROL   0x00100541A0
 
-/*  ********************************************************************* 
+/*  *********************************************************************
     * L2 Cache Control Registers (Section 5)
     ********************************************************************* */
 
@@ -184,7 +184,7 @@
 #define A_BCM1480_L2_MGMT_TAG_BASE          0x00D0000000
 
 
-/*  ********************************************************************* 
+/*  *********************************************************************
     * PCI-X Interface Registers (Section 7)
     ********************************************************************* */
 
@@ -195,7 +195,7 @@
 
 #define A_BCM1480_PCI_TYPE00_HEADER         0x002E000000
 
-/*  ********************************************************************* 
+/*  *********************************************************************
     * Ethernet MAC Registers (Section 11) and DMA Registers (Section 10.6)
     ********************************************************************* */
 
@@ -217,7 +217,7 @@
 #endif
 
 
-/*  ********************************************************************* 
+/*  *********************************************************************
     * DUART Registers (Section 14)
     ********************************************************************* */
 
@@ -232,7 +232,7 @@
 #define BCM1480_DUART_NUM_PORTS           4
 
 #define A_BCM1480_DUART0                    0x0010060000
-#define A_BCM1480_DUART1                    0x0010060400
+#define A_BCM1480_DUART1                    0x0010060500
 #define A_BCM1480_DUART(chan)               ((((chan)&2) == 0)? A_BCM1480_DUART0 : A_BCM1480_DUART1)
 
 #define BCM1480_DUART_CHANREG_SPACING       0x100
@@ -246,58 +246,59 @@
 
 #define A_BCM1480_DUART_IMRREG(chan)	    (A_BCM1480_DUART(chan) + R_BCM1480_DUART_IMRREG(chan))
 #define A_BCM1480_DUART_ISRREG(chan)	    (A_BCM1480_DUART(chan) + R_BCM1480_DUART_ISRREG(chan))
+#define A_BCM1480_DUART_IN_PORT(chan)       (A_BCM1480_DUART(chan) + R_DUART_INP_ORT)
 
 /*
  * These constants are the absolute addresses.
  */
 
-#define A_BCM1480_DUART_MODE_REG_1_C        0x0010060400
-#define A_BCM1480_DUART_MODE_REG_2_C        0x0010060410
-#define A_BCM1480_DUART_STATUS_C            0x0010060420
-#define A_BCM1480_DUART_CLK_SEL_C           0x0010060430
-#define A_BCM1480_DUART_FULL_CTL_C          0x0010060440
-#define A_BCM1480_DUART_CMD_C               0x0010060450
-#define A_BCM1480_DUART_RX_HOLD_C           0x0010060460
-#define A_BCM1480_DUART_TX_HOLD_C           0x0010060470
-#define A_BCM1480_DUART_OPCR_C              0x0010060480
-#define A_BCM1480_DUART_AUX_CTRL_C          0x0010060490
+#define A_BCM1480_DUART_MODE_REG_1_C        0x0010060500
+#define A_BCM1480_DUART_MODE_REG_2_C        0x0010060510
+#define A_BCM1480_DUART_STATUS_C            0x0010060520
+#define A_BCM1480_DUART_CLK_SEL_C           0x0010060530
+#define A_BCM1480_DUART_FULL_CTL_C          0x0010060540
+#define A_BCM1480_DUART_CMD_C               0x0010060550
+#define A_BCM1480_DUART_RX_HOLD_C           0x0010060560
+#define A_BCM1480_DUART_TX_HOLD_C           0x0010060570
+#define A_BCM1480_DUART_OPCR_C              0x0010060580
+#define A_BCM1480_DUART_AUX_CTRL_C          0x0010060590
 
-#define A_BCM1480_DUART_MODE_REG_1_D        0x0010060500
-#define A_BCM1480_DUART_MODE_REG_2_D        0x0010060510
-#define A_BCM1480_DUART_STATUS_D            0x0010060520
-#define A_BCM1480_DUART_CLK_SEL_D           0x0010060530
-#define A_BCM1480_DUART_FULL_CTL_D          0x0010060540
-#define A_BCM1480_DUART_CMD_D               0x0010060550
-#define A_BCM1480_DUART_RX_HOLD_D           0x0010060560
-#define A_BCM1480_DUART_TX_HOLD_D           0x0010060570
-#define A_BCM1480_DUART_OPCR_D              0x0010060580
-#define A_BCM1480_DUART_AUX_CTRL_D          0x0010060590
+#define A_BCM1480_DUART_MODE_REG_1_D        0x0010060600
+#define A_BCM1480_DUART_MODE_REG_2_D        0x0010060610
+#define A_BCM1480_DUART_STATUS_D            0x0010060620
+#define A_BCM1480_DUART_CLK_SEL_D           0x0010060630
+#define A_BCM1480_DUART_FULL_CTL_D          0x0010060640
+#define A_BCM1480_DUART_CMD_D               0x0010060650
+#define A_BCM1480_DUART_RX_HOLD_D           0x0010060660
+#define A_BCM1480_DUART_TX_HOLD_D           0x0010060670
+#define A_BCM1480_DUART_OPCR_D              0x0010060680
+#define A_BCM1480_DUART_AUX_CTRL_D          0x0010060690
 
-#define A_BCM1480_DUART_INPORT_CHNG_CD      0x0010060600
-#define A_BCM1480_DUART_AUX_CTRL_CD         0x0010060610
-#define A_BCM1480_DUART_ISR_C               0x0010060620
-#define A_BCM1480_DUART_IMR_C               0x0010060630
-#define A_BCM1480_DUART_ISR_D               0x0010060640
-#define A_BCM1480_DUART_IMR_D               0x0010060650
-#define A_BCM1480_DUART_OUT_PORT_CD         0x0010060660
-#define A_BCM1480_DUART_OPCR_CD             0x0010060670
-#define A_BCM1480_DUART_IN_PORT_CD          0x0010060680
-#define A_BCM1480_DUART_ISR_CD              0x0010060690
-#define A_BCM1480_DUART_IMR_CD              0x00100606A0
-#define A_BCM1480_DUART_SET_OPR_CD          0x00100606B0
-#define A_BCM1480_DUART_CLEAR_OPR_CD        0x00100606C0
-#define A_BCM1480_DUART_INPORT_CHNG_C       0x00100606D0
-#define A_BCM1480_DUART_INPORT_CHNG_D       0x00100606E0
+#define A_BCM1480_DUART_INPORT_CHNG_CD      0x0010060700
+#define A_BCM1480_DUART_AUX_CTRL_CD         0x0010060710
+#define A_BCM1480_DUART_ISR_C               0x0010060720
+#define A_BCM1480_DUART_IMR_C               0x0010060730
+#define A_BCM1480_DUART_ISR_D               0x0010060740
+#define A_BCM1480_DUART_IMR_D               0x0010060750
+#define A_BCM1480_DUART_OUT_PORT_CD         0x0010060760
+#define A_BCM1480_DUART_OPCR_CD             0x0010060770
+#define A_BCM1480_DUART_IN_PORT_CD          0x0010060780
+#define A_BCM1480_DUART_ISR_CD              0x0010060790
+#define A_BCM1480_DUART_IMR_CD              0x00100607A0
+#define A_BCM1480_DUART_SET_OPR_CD          0x00100607B0
+#define A_BCM1480_DUART_CLEAR_OPR_CD        0x00100607C0
+#define A_BCM1480_DUART_INPORT_CHNG_C       0x00100607D0
+#define A_BCM1480_DUART_INPORT_CHNG_D       0x00100607E0
 
 
-/*  ********************************************************************* 
+/*  *********************************************************************
     * Generic Bus Registers (Section 15) and PCMCIA Registers (Section 16)
     ********************************************************************* */
 
 #define A_BCM1480_IO_PCMCIA_CFG_B	0x0010061A58
 #define A_BCM1480_IO_PCMCIA_STATUS_B	0x0010061A68
 
-/*  ********************************************************************* 
+/*  *********************************************************************
     * GPIO Registers (Section 17)
     ********************************************************************* */
 
@@ -309,13 +310,13 @@
 #define A_GPIO_INT_ADD_TYPE	A_BCM1480_GPIO_INT_ADD_TYPE
 #define R_GPIO_INT_ADD_TYPE	R_BCM1480_GPIO_INT_ADD_TYPE
 
-/*  ********************************************************************* 
+/*  *********************************************************************
     * SMBus Registers (Section 18)
     ********************************************************************* */
 
 /* No changes from BCM1250 */
 
-/*  ********************************************************************* 
+/*  *********************************************************************
     * Timer Registers (Sections 4.6)
     ********************************************************************* */
 
@@ -348,7 +349,7 @@
 #define A_BCM1480_SCD_ZBBUS_CYCLE_CP2           0x0010020C10
 #define A_BCM1480_SCD_ZBBUS_CYCLE_CP3           0x0010020C18
 
-/*  ********************************************************************* 
+/*  *********************************************************************
     * System Control Registers (Section 4.2)
     ********************************************************************* */
 
@@ -356,13 +357,13 @@
 
 #define A_BCM1480_SCD_SCRATCH	 	0x100200A0
 
-/*  ********************************************************************* 
+/*  *********************************************************************
     * System Address Trap Registers (Section 4.9)
     ********************************************************************* */
 
 /* No changes from BCM1250 */
 
-/*  ********************************************************************* 
+/*  *********************************************************************
     * System Interrupt Mapper Registers (Sections 4.3-4.5)
     ********************************************************************* */
 
@@ -420,7 +421,22 @@
 #define R_BCM1480_IMR_ALIAS_MAILBOX_0           0x0000		/* 0x0x0 */
 #define R_BCM1480_IMR_ALIAS_MAILBOX_0_SET       0x0008		/* 0x0x8 */
 
-/*  ********************************************************************* 
+/*
+ * these macros work together to build the address of a mailbox
+ * register, e.g., A_BCM1480_MAILBOX_REGISTER(0,R_BCM1480_IMR_MAILBOX_SET,2)
+ * for mbox_0_set_cpu2 returns 0x00100240C8
+ */
+#define R_BCM1480_IMR_MAILBOX_CPU         0x00
+#define R_BCM1480_IMR_MAILBOX_SET         0x08
+#define R_BCM1480_IMR_MAILBOX_CLR         0x10
+#define R_BCM1480_IMR_MAILBOX_NUM_SPACING 0x20
+#define A_BCM1480_MAILBOX_REGISTER(num,reg,cpu) \
+    (A_BCM1480_IMR_CPU0_BASE + \
+     (num * R_BCM1480_IMR_MAILBOX_NUM_SPACING) + \
+     (cpu * BCM1480_IMR_REGISTER_SPACING) + \
+     (R_BCM1480_IMR_MAILBOX_0_CPU + reg))
+
+/*  *********************************************************************
     * System Performance Counter Registers (Section 4.7)
     ********************************************************************* */
 
@@ -444,7 +460,11 @@
 #define A_BCM1480_SCD_PERF_CNT_6            0x0010020500
 #define A_BCM1480_SCD_PERF_CNT_7            0x0010020508
 
-/*  ********************************************************************* 
+#define BCM1480_SCD_NUM_PERF_CNT 8
+#define BCM1480_SCD_PERF_CNT_SPACING 8
+#define A_BCM1480_SCD_PERF_CNT(n) (A_SCD_PERF_CNT_0+(n*BCM1480_SCD_PERF_CNT_SPACING))
+
+/*  *********************************************************************
     * System Bus Watcher Registers (Section 4.8)
     ********************************************************************* */
 
@@ -453,26 +473,26 @@
 
 #define A_BCM1480_BUS_ERR_STATUS_DEBUG      0x00100208D8
 
-/*  ********************************************************************* 
+/*  *********************************************************************
     * System Debug Controller Registers (Section 19)
     ********************************************************************* */
 
 /* Same as 1250 */
 
-/*  ********************************************************************* 
+/*  *********************************************************************
     * System Trace Unit Registers (Sections 4.10)
     ********************************************************************* */
 
 /* Same as 1250 */
 
-/*  ********************************************************************* 
+/*  *********************************************************************
     * Data Mover DMA Registers (Section 10.7)
     ********************************************************************* */
 
 /* Same as 1250 */
 
 
-/*  ********************************************************************* 
+/*  *********************************************************************
     * HyperTransport Interface Registers (Section 8)
     ********************************************************************* */
 
@@ -486,7 +506,7 @@
 #define A_BCM1480_HT_TYPE00_HEADER         0x00FE002000
 
 
-/*  ********************************************************************* 
+/*  *********************************************************************
     * Node Controller Registers (Section 9)
     ********************************************************************* */
 
@@ -523,7 +543,7 @@
 #define A_BCM1480_NC_SR_TIMEOUT_COUNTER_SEL 0x00DFBE0080
 
 
-/*  ********************************************************************* 
+/*  *********************************************************************
     * H&R Block Configuration Registers (Section 12.4)
     ********************************************************************* */
 
@@ -567,7 +587,7 @@
 
 
 /* checked to here - ehs */
-/*  ********************************************************************* 
+/*  *********************************************************************
     * Packet Manager DMA Registers (Section 12.5)
     ********************************************************************* */
 
@@ -694,7 +714,7 @@
 
 
 
-/*  ********************************************************************* 
+/*  *********************************************************************
     *  High-Speed Port Registers (Section 13)
     ********************************************************************* */
 

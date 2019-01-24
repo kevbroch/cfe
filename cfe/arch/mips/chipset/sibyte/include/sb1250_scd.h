@@ -1,47 +1,47 @@
 /*  *********************************************************************
     *  SB1250 Board Support Package
-    *  
+    *
     *  SCD Constants and Macros			File: sb1250_scd.h
-    *  
+    *
     *  This module contains constants and macros useful for
     *  manipulating the System Control and Debug module on the 1250.
-    *  
+    *
     *  SB1250 specification level:  User's manual 1/02/02
-    *  
-    *********************************************************************  
+    *
+    *********************************************************************
     *
     *  Copyright 2000,2001,2002,2003,2004,2005
     *  Broadcom Corporation. All rights reserved.
-    *  
-    *  This software is furnished under license and may be used and 
-    *  copied only in accordance with the following terms and 
-    *  conditions.  Subject to these conditions, you may download, 
-    *  copy, install, use, modify and distribute modified or unmodified 
-    *  copies of this software in source and/or binary form.  No title 
+    *
+    *  This software is furnished under license and may be used and
+    *  copied only in accordance with the following terms and
+    *  conditions.  Subject to these conditions, you may download,
+    *  copy, install, use, modify and distribute modified or unmodified
+    *  copies of this software in source and/or binary form.  No title
     *  or ownership is transferred hereby.
-    *  
-    *  1) Any source code used, modified or distributed must reproduce 
-    *     and retain this copyright notice and list of conditions 
+    *
+    *  1) Any source code used, modified or distributed must reproduce
+    *     and retain this copyright notice and list of conditions
     *     as they appear in the source file.
-    *  
-    *  2) No right is granted to use any trade name, trademark, or 
-    *     logo of Broadcom Corporation.  The "Broadcom Corporation" 
-    *     name may not be used to endorse or promote products derived 
-    *     from this software without the prior written permission of 
+    *
+    *  2) No right is granted to use any trade name, trademark, or
+    *     logo of Broadcom Corporation.  The "Broadcom Corporation"
+    *     name may not be used to endorse or promote products derived
+    *     from this software without the prior written permission of
     *     Broadcom Corporation.
-    *  
+    *
     *  3) THIS SOFTWARE IS PROVIDED "AS-IS" AND ANY EXPRESS OR
     *     IMPLIED WARRANTIES, INCLUDING BUT NOT LIMITED TO, ANY IMPLIED
-    *     WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-    *     PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED. IN NO EVENT 
-    *     SHALL BROADCOM BE LIABLE FOR ANY DAMAGES WHATSOEVER, AND IN 
+    *     WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+    *     PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED. IN NO EVENT
+    *     SHALL BROADCOM BE LIABLE FOR ANY DAMAGES WHATSOEVER, AND IN
     *     PARTICULAR, BROADCOM SHALL NOT BE LIABLE FOR DIRECT, INDIRECT,
-    *     INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+    *     INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
     *     (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
     *     GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
-    *     BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY 
-    *     OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR 
-    *     TORT (INCLUDING NEGLIGENCE OR OTHERWISE), EVEN IF ADVISED OF 
+    *     BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+    *     OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+    *     TORT (INCLUDING NEGLIGENCE OR OTHERWISE), EVEN IF ADVISED OF
     *     THE POSSIBILITY OF SUCH DAMAGE.
     ********************************************************************* */
 
@@ -190,47 +190,47 @@
 #define V_SYS_WID(x)                _SB_MAKEVALUE(x,S_SYS_WID)
 #define G_SYS_WID(x)                _SB_GETVALUE(x,S_SYS_WID,M_SYS_WID)
 
-/* 
+/*
  * System Manufacturing Register
  * Register: SCD_SYSTEM_MANUF
  */
 
-#if SIBYTE_HDR_FEATURE_1250_112x 
+#if SIBYTE_HDR_FEATURE_1250_112x
 /* Wafer ID: bits 31:0 */
 #define S_SYS_WAFERID1_200        _SB_MAKE64(0)
 #define M_SYS_WAFERID1_200        _SB_MAKEMASK(32,S_SYS_WAFERID1_200)
 #define V_SYS_WAFERID1_200(x)     _SB_MAKEVALUE(x,S_SYS_WAFERID1_200)
 #define G_SYS_WAFERID1_200(x)     _SB_GETVALUE(x,S_SYS_WAFERID1_200,M_SYS_WAFERID1_200)
- 
+
 #define S_SYS_BIN                 _SB_MAKE64(32)
 #define M_SYS_BIN                 _SB_MAKEMASK(4,S_SYS_BIN)
 #define V_SYS_BIN(x)              _SB_MAKEVALUE(x,S_SYS_BIN)
 #define G_SYS_BIN(x)              _SB_GETVALUE(x,S_SYS_BIN,M_SYS_BIN)
- 
+
 /* Wafer ID: bits 39:36 */
 #define S_SYS_WAFERID2_200        _SB_MAKE64(36)
 #define M_SYS_WAFERID2_200        _SB_MAKEMASK(4,S_SYS_WAFERID2_200)
 #define V_SYS_WAFERID2_200(x)     _SB_MAKEVALUE(x,S_SYS_WAFERID2_200)
 #define G_SYS_WAFERID2_200(x)     _SB_GETVALUE(x,S_SYS_WAFERID2_200,M_SYS_WAFERID2_200)
- 
+
 /* Wafer ID: bits 39:0 */
 #define S_SYS_WAFERID_300         _SB_MAKE64(0)
 #define M_SYS_WAFERID_300         _SB_MAKEMASK(40,S_SYS_WAFERID_300)
 #define V_SYS_WAFERID_300(x)      _SB_MAKEVALUE(x,S_SYS_WAFERID_300)
 #define G_SYS_WAFERID_300(x)      _SB_GETVALUE(x,S_SYS_WAFERID_300,M_SYS_WAFERID_300)
- 
+
 #define S_SYS_XPOS                _SB_MAKE64(40)
 #define M_SYS_XPOS                _SB_MAKEMASK(6,S_SYS_XPOS)
 #define V_SYS_XPOS(x)             _SB_MAKEVALUE(x,S_SYS_XPOS)
 #define G_SYS_XPOS(x)             _SB_GETVALUE(x,S_SYS_XPOS,M_SYS_XPOS)
- 
+
 #define S_SYS_YPOS                _SB_MAKE64(46)
 #define M_SYS_YPOS                _SB_MAKEMASK(6,S_SYS_YPOS)
 #define V_SYS_YPOS(x)             _SB_MAKEVALUE(x,S_SYS_YPOS)
 #define G_SYS_YPOS(x)             _SB_GETVALUE(x,S_SYS_YPOS,M_SYS_YPOS)
 #endif
 
- 
+
 /*
  * System Config Register (Table 4-2)
  * Register: SCD_SYSTEM_CFG
@@ -383,8 +383,9 @@
 #define V_SCD_TIMER_INIT(x)         _SB_MAKEVALUE(x,S_SCD_TIMER_INIT)
 #define G_SCD_TIMER_INIT(x)         _SB_GETVALUE(x,S_SCD_TIMER_INIT,M_SCD_TIMER_INIT)
 
+#define V_SCD_TIMER_WIDTH	    23
 #define S_SCD_TIMER_CNT             0
-#define M_SCD_TIMER_CNT             _SB_MAKEMASK(23,S_SCD_TIMER_CNT)
+#define M_SCD_TIMER_CNT             _SB_MAKEMASK(V_SCD_TIMER_WIDTH,S_SCD_TIMER_CNT)
 #define V_SCD_TIMER_CNT(x)         _SB_MAKEVALUE(x,S_SCD_TIMER_CNT)
 #define G_SCD_TIMER_CNT(x)         _SB_GETVALUE(x,S_SCD_TIMER_CNT,M_SCD_TIMER_CNT)
 
@@ -396,7 +397,6 @@
  * System Performance Counters
  */
 
-#if SIBYTE_HDR_FEATURE_1250_112x
 #define S_SPC_CFG_SRC0            0
 #define M_SPC_CFG_SRC0            _SB_MAKEMASK(8,S_SPC_CFG_SRC0)
 #define V_SPC_CFG_SRC0(x)         _SB_MAKEVALUE(x,S_SPC_CFG_SRC0)
@@ -417,6 +417,7 @@
 #define V_SPC_CFG_SRC3(x)         _SB_MAKEVALUE(x,S_SPC_CFG_SRC3)
 #define G_SPC_CFG_SRC3(x)         _SB_GETVALUE(x,S_SPC_CFG_SRC3,M_SPC_CFG_SRC3)
 
+#if SIBYTE_HDR_FEATURE_1250_112x
 #define M_SPC_CFG_CLEAR		_SB_MAKEMASK1(32)
 #define M_SPC_CFG_ENABLE	_SB_MAKEMASK1(33)
 #endif
@@ -532,8 +533,6 @@
  * Trace Buffer Config register
  */
 
-#if SIBYTE_HDR_FEATURE_1250_112x
-
 #define M_SCD_TRACE_CFG_RESET           _SB_MAKEMASK1(0)
 #define M_SCD_TRACE_CFG_START_READ      _SB_MAKEMASK1(1)
 #define M_SCD_TRACE_CFG_START           _SB_MAKEMASK1(2)
@@ -542,16 +541,25 @@
 #define M_SCD_TRACE_CFG_FREEZE_FULL     _SB_MAKEMASK1(5)
 #define M_SCD_TRACE_CFG_DEBUG_FULL      _SB_MAKEMASK1(6)
 #define M_SCD_TRACE_CFG_FULL            _SB_MAKEMASK1(7)
-#if SIBYTE_HDR_FEATURE(1250, PASS2) || SIBYTE_HDR_FEATURE(112x, PASS1)
+#if SIBYTE_HDR_FEATURE(1250, PASS2) || SIBYTE_HDR_FEATURE(112x, PASS1) || SIBYTE_HDR_FEATURE_CHIP(1480)
 #define M_SCD_TRACE_CFG_FORCECNT        _SB_MAKEMASK1(8)
-#endif /* 1250 PASS2 || 112x PASS1 */
+#endif /* 1250 PASS2 || 112x PASS1 || 1480 */
 
+/*
+ * This field is the same on the 1250/112x and 1480, just located in
+ * a slightly different place in the register.
+ */
+#if SIBYTE_HDR_FEATURE_1250_112x
 #define S_SCD_TRACE_CFG_CUR_ADDR        10
+#else
+#if SIBYTE_HDR_FEATURE_CHIP(1480)
+#define S_SCD_TRACE_CFG_CUR_ADDR        24
+#endif	/* 1480 */
+#endif  /* 1250/112x */
+
 #define M_SCD_TRACE_CFG_CUR_ADDR        _SB_MAKEMASK(8,S_SCD_TRACE_CFG_CUR_ADDR)
 #define V_SCD_TRACE_CFG_CUR_ADDR(x)     _SB_MAKEVALUE(x,S_SCD_TRACE_CFG_CUR_ADDR)
 #define G_SCD_TRACE_CFG_CUR_ADDR(x)     _SB_GETVALUE(x,S_SCD_TRACE_CFG_CUR_ADDR,M_SCD_TRACE_CFG_CUR_ADDR)
-
-#endif	/* 1250/112x */
 
 /*
  * Trace Event registers

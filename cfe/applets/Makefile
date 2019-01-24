@@ -1,13 +1,13 @@
 
-CFG_MLONG64=0
+# CFG_MLONG64=0  No more CFG_MLONG64
 
-CFE_DIRS =  ../include ../arch/mips/cpu/sb1250/include ../lib ../verif ../api
+CFE_DIRS =  ../include ../arch/mips/cpu/sb1250/include ../lib ../verif ../api ../arch/mips/chipset/sibyte/include/
 CFE_INCLUDES =  $(patsubst %,-I%,$(subst :, ,$(CFE_DIRS)))
 
 VPATH = $(CFE_DIRS)
 
 INCLUDES =  -I. $(CFE_INCLUDES)
-COMFLAGS = -g -c -mcpu=sb1 -ffreestanding
+COMFLAGS = -g -c -mtune=sb1 -ffreestanding
 CFLAGS = $(INCLUDES) $(COMFLAGS) -O -Wall -Werror -Wstrict-prototypes -Wmissing-prototypes -G 0 -DCFE_API_ALL
 
 GCC = $(TOOLS)sb1-elf-gcc
@@ -61,6 +61,7 @@ vapitest : vapitest.o
 
 clean :
 	rm -f *.o *~ *.map *.mapraw
-	rm -f test test.elf test.srec test.elfraw
+	rm -f test test.elf test.srec test.elfraw test.dis
 	rm -f *download.elf *.gz
 	rm -f vapitest vapitest.srec
+

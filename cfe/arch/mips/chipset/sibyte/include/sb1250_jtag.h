@@ -1,47 +1,47 @@
 /*  *********************************************************************
     *  SB1250 Board Support Package
-    *  
+    *
     *  JTAG Constants and Macros		File: sb1250_jtag.h
-    *  
+    *
     *  This module contains constants and macros useful for
     *  manipulating the System Control and Debug module on the 1250.
-    *  
+    *
     *  SB1250 specification level:  User's manual 1/02/02
-    *  
-    *********************************************************************  
+    *
+    *********************************************************************
     *
     *  Copyright 2000,2001,2002,2003,2004
     *  Broadcom Corporation. All rights reserved.
-    *  
-    *  This software is furnished under license and may be used and 
-    *  copied only in accordance with the following terms and 
-    *  conditions.  Subject to these conditions, you may download, 
-    *  copy, install, use, modify and distribute modified or unmodified 
-    *  copies of this software in source and/or binary form.  No title 
+    *
+    *  This software is furnished under license and may be used and
+    *  copied only in accordance with the following terms and
+    *  conditions.  Subject to these conditions, you may download,
+    *  copy, install, use, modify and distribute modified or unmodified
+    *  copies of this software in source and/or binary form.  No title
     *  or ownership is transferred hereby.
-    *  
-    *  1) Any source code used, modified or distributed must reproduce 
-    *     and retain this copyright notice and list of conditions 
+    *
+    *  1) Any source code used, modified or distributed must reproduce
+    *     and retain this copyright notice and list of conditions
     *     as they appear in the source file.
-    *  
-    *  2) No right is granted to use any trade name, trademark, or 
-    *     logo of Broadcom Corporation.  The "Broadcom Corporation" 
-    *     name may not be used to endorse or promote products derived 
-    *     from this software without the prior written permission of 
+    *
+    *  2) No right is granted to use any trade name, trademark, or
+    *     logo of Broadcom Corporation.  The "Broadcom Corporation"
+    *     name may not be used to endorse or promote products derived
+    *     from this software without the prior written permission of
     *     Broadcom Corporation.
-    *  
+    *
     *  3) THIS SOFTWARE IS PROVIDED "AS-IS" AND ANY EXPRESS OR
     *     IMPLIED WARRANTIES, INCLUDING BUT NOT LIMITED TO, ANY IMPLIED
-    *     WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-    *     PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED. IN NO EVENT 
-    *     SHALL BROADCOM BE LIABLE FOR ANY DAMAGES WHATSOEVER, AND IN 
+    *     WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+    *     PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED. IN NO EVENT
+    *     SHALL BROADCOM BE LIABLE FOR ANY DAMAGES WHATSOEVER, AND IN
     *     PARTICULAR, BROADCOM SHALL NOT BE LIABLE FOR DIRECT, INDIRECT,
-    *     INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+    *     INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
     *     (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
     *     GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
-    *     BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY 
-    *     OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR 
-    *     TORT (INCLUDING NEGLIGENCE OR OTHERWISE), EVEN IF ADVISED OF 
+    *     BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+    *     OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+    *     TORT (INCLUDING NEGLIGENCE OR OTHERWISE), EVEN IF ADVISED OF
     *     THE POSSIBILITY OF SUCH DAMAGE.
     ********************************************************************* */
 
@@ -105,7 +105,7 @@
 #endif /* 1250 || 112x */
 
 
-/* 
+/*
  * IDCODE
  */
 
@@ -154,7 +154,7 @@
 /*
  * EJTAG Control Register (Table 15-14)
  */
- 
+
 #if SIBYTE_HDR_FEATURE_1250_112x
 #define S_JTAG_1250_CR_DM0             0
 #define M_JTAG_1250_CR_DM0             _SB_MAKEMASK1(0)
@@ -197,34 +197,34 @@
 #if SIBYTE_HDR_FEATURE_1250_112x
 #define M_SYSCFG_1250_CLKSTOP          _SB_MAKEMASK1(32)
 #define M_SYSCFG_1250_CLKSTEP          _SB_MAKEMASK1(33)
-				       
+
 #define S_SYSCFG_1250_CLKCOUNT         34
 #define M_SYSCFG_1250_CLKCOUNT         _SB_MAKEMASK(8,S_SYSCFG_1250_CLKCOUNT)
 #define V_SYSCFG_1250_CLKCOUNT(x)      _SB_MAKEVALUE(x,S_SYSCFG_1250_CLKCOUNT)
 #define G_SYSCFG_1250_CLKCOUNT(x)      _SB_GETVALUE(x,S_SYSCFG_1250_CLKCOUNT,M_SYSCFG_1250_CLKCOUNT)
-				       
+
 #define M_SYSCFG_1250_PLL_BYPASS       _SB_MAKEMASK1(42)
 
 #define M_SYSCFG_1250_SB_SOFTRES       _SB_MAKEMASK1(58)
 #define M_SYSCFG_1250_SYSTEM_RESET     _SB_MAKEMASK1(60)
-				       
+
 /* These masks are in the second double-word */
 #define S_SYSCFG_1250_PLLPHASE         0
 #define M_SYSCFG_1250_PLLPHASE         _SB_MAKEMASK(2,S_SYSCFG_1250_PLLPHASE)
 #define V_SYSCFG_1250_PLLPHASE(x)      _SB_MAKEVALUE(x,S_SYSCFG_1250_PLLPHASE)
 #define G_SYSCFG_1250_PLLPHASE(x)      _SB_GETVALUE(x,S_SYSCFG_1250_PLLPHASE,M_SYSCFG_1250_PLLPHASE)
-				       
+
 #define K_SYSCFG_1250_PLLPHASE_A       1
 #define K_SYSCFG_1250_PLLPHASE_B       3
-				       
+
 #define V_SYSCFG_1250_PLLPHASE_A       V_SYSCFG_1250_PLLPHASE(K_SYSCFG_1250_PLLPHASE_A)
 #define V_SYSCFG_1250_PLLPHASE_B       V_SYSCFG_1250_PLLPHASE(K_SYSCFG_1250_PLLPHASE_B)
-				       
+
 #define S_SYSCFG_1250_PLLCOUNT         2
 #define M_SYSCFG_1250_PLLCOUNT         _SB_MAKEMASK(30,S_SYSCFG_1250_PLLCOUNT)
 #define V_SYSCFG_1250_PLLCOUNT(x)      _SB_MAKEVALUE(x,S_SYSCFG_1250_PLLCOUNT)
 #define G_SYSCFG_1250_PLLCOUNT(x)      _SB_GETVALUE(x,S_SYSCFG_1250_PLLCOUNT,M_SYSCFG_1250_PLLCOUNT)
-				       
+
 #define M_SYSCFG_1250_PLLSTOP          _SB_MAKEMASK1(32)
 #define M_SYSCFG_1250_STOPSTRETCH      _SB_MAKEMASK1(33)
 #define M_SYSCFG_1250_STARTCOND        _SB_MAKEMASK1(34)
@@ -232,7 +232,7 @@
 #define M_SYSCFG_1250_STOPSTRDONE      _SB_MAKEMASK1(36)
 #define M_SYSCFG_1250_SERZB_ARD        _SB_MAKEMASK1(37)
 #define M_SYSCFG_1250_SERZB_AR         _SB_MAKEMASK1(38)
-				       
+
 #define S_SYSCFG_1250_STRETCHMODE      39
 #define M_SYSCFG_1250_STRETCHMODE      _SB_MAKEMASK(2,S_SYSCFG_1250_STRETCHMODE)
 #define V_SYSCFG_1250_STRETCHMODE(x)   _SB_MAKEVALUE(x,S_SYSCFG_1250_STRETCHMODE)

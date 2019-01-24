@@ -256,6 +256,12 @@ pci_businit_dev_func (pcitag_t tag, pci_flags_t flags)
 
     pcindev++;
 
+    /* Preset here */
+    if (pci_device_preset(tag) != 0)
+    {
+        return;
+    }
+
     if (PCI_CLASS(class) == PCI_CLASS_BRIDGE) {
 	enum {NONE, PCI, LDT, HOST} sec_type;
 	int  offset;
@@ -301,6 +307,7 @@ pci_businit_dev_func (pcitag_t tag, pci_flags_t flags)
 	if (sec_type == NONE)
 	    return;
 
+
 #if CFG_LDT
 	if (sec_type == LDT && offset != 0) {
 	    pcireg_t cr = pci_conf_read(tag, offset+LDT_COMMAND_CAP_OFF);
@@ -309,6 +316,7 @@ pci_businit_dev_func (pcitag_t tag, pci_flags_t flags)
 	}
 
 #endif
+
 
 	bus2 = pci_nextbus(port);
 	if (bus2 < 0)    /* XXX error message? */
@@ -395,11 +403,24 @@ pci_businit_dev (int port, int bus, int device, pci_flags_t flags)
     bhlc = pci_conf_read(tag, PCI_BHLC_REG);
     maxfunc = PCI_HDRTYPE_MULTIFN(bhlc) ? PCI_FUNCMAX : 0;
 
+#if _BCM91480HT_
+    /* 
+     * The device on bus 8/13 does not have MULTIFN set.  So we can't see
+     * any of the devices after it.  We need to add them so our device count is
+     * correct for this board.
+     */
+    if ((bus == 8 && device == 13)) {
+	pcindev = pcindev+2;
+	}
+#endif
+
     for (function = 0; function <= maxfunc; function++) {
 	tag = pci_make_tag(port, bus, device, function);
-	if (pci_probe_tag(tag))
+
+	if (pci_probe_tag(tag)) {
 	    pci_businit_dev_func(tag, flags);
-    }
+	    }
+	}
 }
 
 
@@ -428,7 +449,6 @@ pci_businit (int port, int bus, int probe_limit, pci_flags_t flags)
 
 static int pci_nbus;
 static int pcimaxdev;
-
 
 /* The following are temporary data structures initialized by the
    query-pass scan and used subsequently to assign resources. */
@@ -483,8 +503,8 @@ pci_query_dev_func (pcitag_t tag)
     }
 
     if (pcindev >= pcimaxdev) {
-	panic ("pci: unexpected device number\n");
-	return;
+        panic ("pci: unexpected device number\n");
+        return;
     }
 
     pa = &pciarg[pcindev];
@@ -1308,6 +1328,7 @@ pci_configure_tree (int port, pci_flags_t flags)
     /* initialise any PCI-PCI bridges, discover and number buses */
     SBD_DISPLAY ("PCIB");
     pcindev = 0;
+
     pci_businit(port, 0, PCI_DEVMAX + 1, flags);
     pci_nbus = pci_maxbus(port) + 1;
     pcimaxdev = pcindev;
@@ -1348,7 +1369,7 @@ pci_configure_tree (int port, pci_flags_t flags)
 
     if (pcindev != pcimaxdev) {
 	panic ("Inconsistent device count\n");
-	return;
+	//return;
     }
     
     /* alter PCI bridge parameters based on query data */
@@ -1404,6 +1425,7 @@ pci_configure (pci_flags_t flags)
 	/* For some chip families, the number of ports to configure
            can be less than the architectural maximum. */
 	nports = pci_maxport() + 1;
+
 	for (port = 0; port < nports; port++) {
 	    pci_configure_tree(port, flags);
 	    }

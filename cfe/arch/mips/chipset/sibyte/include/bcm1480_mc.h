@@ -1,47 +1,47 @@
 /*  *********************************************************************
     *  BCM1280/BCM1480 Board Support Package
-    *  
-    *  Memory Controller constants              File: bcm1480_mc.h       
-    *  
+    *
+    *  Memory Controller constants              File: bcm1480_mc.h
+    *
     *  This module contains constants and macros useful for
     *  programming the memory controller.
-    *  
+    *
     *  BCM1400 specification level:  1280-UM100-D1 (11/14/03 Review Copy)
-    *  
-    *********************************************************************  
+    *
+    *********************************************************************
     *
     *  Copyright 2000,2001,2002,2003,2004
     *  Broadcom Corporation. All rights reserved.
-    *  
-    *  This software is furnished under license and may be used and 
-    *  copied only in accordance with the following terms and 
-    *  conditions.  Subject to these conditions, you may download, 
-    *  copy, install, use, modify and distribute modified or unmodified 
-    *  copies of this software in source and/or binary form.  No title 
+    *
+    *  This software is furnished under license and may be used and
+    *  copied only in accordance with the following terms and
+    *  conditions.  Subject to these conditions, you may download,
+    *  copy, install, use, modify and distribute modified or unmodified
+    *  copies of this software in source and/or binary form.  No title
     *  or ownership is transferred hereby.
-    *  
-    *  1) Any source code used, modified or distributed must reproduce 
-    *     and retain this copyright notice and list of conditions 
+    *
+    *  1) Any source code used, modified or distributed must reproduce
+    *     and retain this copyright notice and list of conditions
     *     as they appear in the source file.
-    *  
-    *  2) No right is granted to use any trade name, trademark, or 
-    *     logo of Broadcom Corporation.  The "Broadcom Corporation" 
-    *     name may not be used to endorse or promote products derived 
-    *     from this software without the prior written permission of 
+    *
+    *  2) No right is granted to use any trade name, trademark, or
+    *     logo of Broadcom Corporation.  The "Broadcom Corporation"
+    *     name may not be used to endorse or promote products derived
+    *     from this software without the prior written permission of
     *     Broadcom Corporation.
-    *  
+    *
     *  3) THIS SOFTWARE IS PROVIDED "AS-IS" AND ANY EXPRESS OR
     *     IMPLIED WARRANTIES, INCLUDING BUT NOT LIMITED TO, ANY IMPLIED
-    *     WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-    *     PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED. IN NO EVENT 
-    *     SHALL BROADCOM BE LIABLE FOR ANY DAMAGES WHATSOEVER, AND IN 
+    *     WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+    *     PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED. IN NO EVENT
+    *     SHALL BROADCOM BE LIABLE FOR ANY DAMAGES WHATSOEVER, AND IN
     *     PARTICULAR, BROADCOM SHALL NOT BE LIABLE FOR DIRECT, INDIRECT,
-    *     INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+    *     INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
     *     (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
     *     GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
-    *     BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY 
-    *     OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR 
-    *     TORT (INCLUDING NEGLIGENCE OR OTHERWISE), EVEN IF ADVISED OF 
+    *     BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+    *     OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+    *     TORT (INCLUDING NEGLIGENCE OR OTHERWISE), EVEN IF ADVISED OF
     *     THE POSSIBILITY OF SUCH DAMAGE.
     ********************************************************************* */
 
@@ -90,7 +90,7 @@
 #define K_BCM1480_MC_CS0246_MODE	    0x55
 #define K_BCM1480_MC_CS0145_MODE	    0x33
 #define K_BCM1480_MC_CS0167_MODE	    0xC3
-#define K_BCM1480_MC_CSFULL_MODE	    0xFF	
+#define K_BCM1480_MC_CSFULL_MODE	    0xFF
 
 /*
  * Chip Select Start Address Register (Table 82)
@@ -223,7 +223,7 @@
 #define V_BCM1480_MC_ROW14(x)               _SB_MAKEVALUE(x,S_BCM1480_MC_ROW14)
 #define G_BCM1480_MC_ROW14(x)               _SB_GETVALUE(x,S_BCM1480_MC_ROW14,M_BCM1480_MC_ROW14)
 
-#define K_BCM1480_MC_ROWX_BIT_SPACING  	    8			
+#define K_BCM1480_MC_ROWX_BIT_SPACING  	    8
 
 /*
  * Column Address Bit Select Register 0 (Table 86)
@@ -305,7 +305,7 @@
 #define V_BCM1480_MC_COL14(x)               _SB_MAKEVALUE(x,S_BCM1480_MC_COL14)
 #define G_BCM1480_MC_COL14(x)               _SB_GETVALUE(x,S_BCM1480_MC_COL14,M_BCM1480_MC_COL14)
 
-#define K_BCM1480_MC_COLX_BIT_SPACING  	    8			
+#define K_BCM1480_MC_COLX_BIT_SPACING  	    8
 
 /*
  * CS0 and CS1 Bank Address Bit Select Register (Table 88)
@@ -398,6 +398,10 @@
 #define M_BCM1480_MC_CS6                    _SB_MAKEMASK1(10)
 #define M_BCM1480_MC_CS7                    _SB_MAKEMASK1(11)
 
+#define M_BCM1480_MC_CS                  _SB_MAKEMASK(8,S_BCM1480_MC_CS0)
+#define V_BCM1480_MC_CS(x)               _SB_MAKEVALUE(x,S_BCM1480_MC_CS0)
+#define G_BCM1480_MC_CS(x)               _SB_GETVALUE(x,S_BCM1480_MC_CS0,M_BCM1480_MC_CS0)
+
 #define M_BCM1480_MC_CMD_ACTIVE             _SB_MAKEMASK1(16)
 
 /*
@@ -426,16 +430,16 @@
 
 #if SIBYTE_HDR_FEATURE(1480, PASS2)
 #define K_BCM1480_MC_DRAM_TYPE_DDR2	    2
-#endif			
+#endif
 
-#define K_BCM1480_MC_DRAM_TYPE_DDR2_PASS1   0	
+#define K_BCM1480_MC_DRAM_TYPE_DDR2_PASS1   0
 
 #define V_BCM1480_MC_DRAM_TYPE_JEDEC        V_BCM1480_MC_DRAM_TYPE(K_BCM1480_MC_DRAM_TYPE_JEDEC)
 #define V_BCM1480_MC_DRAM_TYPE_FCRAM        V_BCM1480_MC_DRAM_TYPE(K_BCM1480_MC_DRAM_TYPE_FCRAM)
 
 #if SIBYTE_HDR_FEATURE(1480, PASS2)
 #define V_BCM1480_MC_DRAM_TYPE_DDR2	    V_BCM1480_MC_DRAM_TYPE(K_BCM1480_MC_DRAM_TYPE_DDR2)
-#endif 
+#endif
 
 #define M_BCM1480_MC_GANGED                 _SB_MAKEMASK1(36)
 #define M_BCM1480_MC_BY9_INTF               _SB_MAKEMASK1(37)
@@ -456,10 +460,10 @@
 #if SIBYTE_HDR_FEATURE(1480, PASS2)
 #define M_BCM1480_MC_2T_CMD		    _SB_MAKEMASK1(42)
 #define M_BCM1480_MC_ECC_COR_DIS	    _SB_MAKEMASK1(43)
-#endif	
+#endif
 
 #define V_BCM1480_MC_DRAMMODE_DEFAULT	V_BCM1480_MC_EMODE_DEFAULT | V_BCM1480_MC_MODE_DEFAULT | V_BCM1480_MC_DRAM_TYPE_JEDEC | \
-                                V_BCM1480_MC_PG_POLICY(K_BCM1480_MC_PG_POLICY_CAS_TIME_CHK) 
+                                V_BCM1480_MC_PG_POLICY(K_BCM1480_MC_PG_POLICY_CAS_TIME_CHK)
 
 /*
  * Memory Clock Configuration Register (Table 92)
@@ -478,7 +482,7 @@
 #define G_BCM1480_MC_REF_RATE(x)            _SB_GETVALUE(x,S_BCM1480_MC_REF_RATE,M_BCM1480_MC_REF_RATE)
 
 #define K_BCM1480_MC_REF_RATE_100MHz        0x31
-#define K_BCM1480_MC_REF_RATE_200MHz        0x62 
+#define K_BCM1480_MC_REF_RATE_200MHz        0x62
 #define K_BCM1480_MC_REF_RATE_400MHz        0xC4
 
 #define V_BCM1480_MC_REF_RATE_100MHz        V_BCM1480_MC_REF_RATE(K_BCM1480_MC_REF_RATE_100MHz)
@@ -533,7 +537,7 @@
 #define S_BCM1480_MC_ODT0	            0
 #define M_BCM1480_MC_ODT0		    _SB_MAKEMASK(8,S_BCM1480_MC_ODT0)
 #define V_BCM1480_MC_ODT0(x)		    _SB_MAKEVALUE(x,S_BCM1480_MC_ODT0)
-		    
+
 #define S_BCM1480_MC_ODT2	            8
 #define M_BCM1480_MC_ODT2		    _SB_MAKEMASK(8,S_BCM1480_MC_ODT2)
 #define V_BCM1480_MC_ODT2(x)		    _SB_MAKEVALUE(x,S_BCM1480_MC_ODT2)

@@ -19,6 +19,8 @@ CHIPSET = sibyte
 #CFLAGS += -D_FUNCSIM_ -D_FASTEMUL_
 include ${TOP}/main/cfe.mk
 
+CFLAGS += -DSIBYTE_HDR_FEATURES="(SIBYTE_HDR_FMASK_1250_ALL|SIBYTE_HDR_FMASK_112x_ALL)"
+
 BSPOBJS = tiny_init.o tiny_devs.o 
 
 ALL : cfe cfe.flash

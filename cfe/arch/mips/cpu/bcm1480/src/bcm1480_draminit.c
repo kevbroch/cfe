@@ -305,6 +305,7 @@ typedef long sbport_t;
 #define JEDEC_SDRAM_MRVAL_CAS35_BL8	0x73    /* 8-byte bursts, sequential, CAS 3.5 */
 #define JEDEC_SDRAM_MRVAL_CAS4_BL8	0x43	/* 8-byte bursts, sequential, CAS 4.0 */
 #define JEDEC_SDRAM_MRVAL_DDR2_CAS5_BL8	0x53	/* 8-byte bursts, sequential, CAS 5.0 */
+#define JEDEC_SDRAM_MRVAL_DDR2_CAS6_BL8	0x63	/* 8-byte bursts, sequential, CAS 6.0 */
 
 #define JEDEC_SDRAM_MRVAL_CAS15 0x52	/* 4-byte bursts, sequential, CAS 1.5 */
 #define JEDEC_SDRAM_MRVAL_CAS2	0x22	/* 4-byte bursts, sequential, CAS 2 */
@@ -313,7 +314,7 @@ typedef long sbport_t;
 #define JEDEC_SDRAM_MRVAL_CAS35 0x72    /* 4-byte bursts, sequential, CAS 3.5 */
 #define JEDEC_SDRAM_MRVAL_CAS4	0x42	/* 4-byte bursts, sequential, CAS 4.0 */
 #define JEDEC_SDRAM_MRVAL_DDR2_CAS5	0x52	/* 4-byte bursts, sequential, CAS 5.0 */
-#define JEDEC_SDRAM_MRVAL_DDR2_CAS6	0x62	/* 4-byte bursts, sequential, CAS 5.0 */
+#define JEDEC_SDRAM_MRVAL_DDR2_CAS6	0x62	/* 4-byte bursts, sequential, CAS 6.0 */
 
 #define JEDEC_SDRAM_MRVAL_RESETDLL 0x100
 
@@ -2257,6 +2258,9 @@ static void bcm1480_jedec_ddr2_initcmds(int mcnum,mcdata_t *mc,unsigned int csel
     else if (mc->chantype == MC_32BIT_CHAN) {
 	/* Use 8-byte bursts for 32-bit channels */
 	switch (tdata->flags & CS_CASLAT_MASK) {
+	    case CS_CASLAT_60:
+		casbits = V_BCM1480_MC_MODE(JEDEC_SDRAM_MRVAL_DDR2_CAS6_BL8);
+		break;
 	    case CS_CASLAT_50:
 		casbits = V_BCM1480_MC_MODE(JEDEC_SDRAM_MRVAL_DDR2_CAS5_BL8);
 		break;
@@ -2906,7 +2910,7 @@ static void bcm1480_dram_intlv_64bit(initdata_t *d)
     sbport_t mcbase;
     sbport_t mcbase1;
 
-    uint64_t dimmsize,highmem;
+    uint64_t dimmsize,highmem,highmem4gb;
     
     uint64_t mask;
     int bitnum;
@@ -2916,6 +2920,7 @@ static void bcm1480_dram_intlv_64bit(initdata_t *d)
 
     csintlv0 = csintlv1 = csintlv2 = chanintlv0 = 0;
     highmem = 0x100;
+    highmem4gb = 0x200;
 
     /*
      * Loop through each memory channel and each chip select
@@ -3110,12 +3115,28 @@ static void bcm1480_dram_intlv_64bit(initdata_t *d)
 		if (csidx < num_csint) {
 		    mask = READCSR(mcbase+R_BCM1480_MC_CS_START+start_end_spacing);
 		    tmp  = (channel_start >> 24);
-		    mask |= ((tmp | highmem) << (16*csidx));
+
+		    if (d->ttlbytes >= 0xFFFFFFFF) {
+			tmp &= ~highmem;
+			mask |= ((tmp | highmem4gb) << (16*csidx));
+			}
+		    else {
+			mask |= ((tmp | highmem) << (16*csidx));
+			}
+
 		    WRITECSR(mcbase+R_BCM1480_MC_CS_START+start_end_spacing,mask);
 		    
 		    mask = READCSR(mcbase1+R_BCM1480_MC_CS_START+start_end_spacing);
 		    tmp  = (channel_start >> 24);
-		    mask |= ((tmp | highmem) << (16*csidx));
+
+		    if (d->ttlbytes >= 0xFFFFFFFF) {
+			tmp &= ~highmem;
+			mask |= ((tmp | highmem4gb) << (16*csidx));
+			}
+		    else {
+			mask |= ((tmp | highmem) << (16*csidx));
+			}
+
 		    WRITECSR(mcbase1+R_BCM1480_MC_CS_START+start_end_spacing,mask);
 	    
 		    d->ttlbytes += dimmsize >> d->mc[mcidx].csint;
@@ -3128,34 +3149,45 @@ static void bcm1480_dram_intlv_64bit(initdata_t *d)
 		    
 		    mask = READCSR(mcbase1+R_BCM1480_MC_CS_START+start_end_spacing);
 		    tmp  = d->ttlbytes >> 24;
-		    mask |= ((tmp | highmem) << (16*csidx));
+
+		    if (d->ttlbytes >= 0xFFFFFFFF) {
+			tmp &= ~highmem;
+			mask |= ((tmp | highmem4gb) << (16*csidx));
+			}
+		    else {
+			mask |= ((tmp | highmem) << (16*csidx));
+			}
+
 		    WRITECSR(mcbase1+R_BCM1480_MC_CS_START+start_end_spacing,mask);
 	    
 		    d->ttlbytes += dimmsize;
 		    dimmsize = d->ttlbytes;
 		    }
-#if 0
-		/*
-		 * Check to see if we've hit 4GB mark.  Need to translate total memory from 0x01_0000_0000 to
-		 * 0x02_0000_0000.
-		 */
-		if (d->ttlbytes >= 0x0100000000) {
-		    dimmsize &= ~0x0100000000;
-		    dimmsize |= 0x0200000000;
-		    channel_start &= ~0x0100000000;
-		    channel_start |= 0x0200000000;
-		    highmem = 0x200;
-		    }
-#endif
 
 		mask = READCSR(mcbase+R_BCM1480_MC_CS_END+start_end_spacing);
 		tmp  = dimmsize >> 24;
-		mask |= ((tmp | highmem)  << (16*csidx));
+
+		if (d->ttlbytes >= 0xFFFFFFFF) {
+		    tmp &= ~highmem;
+		    mask |= ((tmp | highmem4gb) << (16*csidx));
+		    }
+		else {
+		    mask |= ((tmp | highmem) << (16*csidx));
+		    }
+
 		WRITECSR(mcbase+R_BCM1480_MC_CS_END+start_end_spacing,mask);
 
 		mask = READCSR(mcbase1+R_BCM1480_MC_CS_END+start_end_spacing);
 		tmp  = dimmsize >> 24;
-		mask |= ((tmp | highmem)  << (16*csidx));
+
+		if (d->ttlbytes >= 0xFFFFFFFF) {
+		    tmp &= ~highmem;
+		    mask |= ((tmp | highmem4gb) << (16*csidx));
+		    }
+		else {
+		    mask |= ((tmp | highmem) << (16*csidx));
+		    }
+
 		WRITECSR(mcbase1+R_BCM1480_MC_CS_END+start_end_spacing,mask);
 	
 		}
@@ -3163,7 +3195,15 @@ static void bcm1480_dram_intlv_64bit(initdata_t *d)
 		if (csidx < num_csint) {
 		    mask = READCSR(mcbase+R_BCM1480_MC_CS_START+start_end_spacing);
 		    tmp  = (channel_start >> 24);
-		    mask |= ((tmp | highmem) << (16*csidx));
+		    
+		    if (d->ttlbytes >= 0xFFFFFFFF) {
+			tmp &= ~highmem;
+			mask |= ((tmp | highmem4gb) << (16*csidx));
+			}
+		    else {
+			mask |= ((tmp | highmem) << (16*csidx));
+			}
+
 		    WRITECSR(mcbase+R_BCM1480_MC_CS_START+start_end_spacing,mask);
 
 		    d->ttlbytes += dimmsize >> d->mc[mcidx].csint;
@@ -3172,29 +3212,36 @@ static void bcm1480_dram_intlv_64bit(initdata_t *d)
 		else {
 		    mask = READCSR(mcbase+R_BCM1480_MC_CS_START+start_end_spacing);
 		    tmp  = d->ttlbytes >> 24;
-		    mask |= ((tmp | highmem) << (16*csidx));
+
+		    if (d->ttlbytes >= 0xFFFFFFFF) {
+			tmp &= ~highmem;
+			mask |= ((tmp | highmem4gb) << (16*csidx));
+			}
+		    else {
+			mask |= ((tmp | highmem) << (16*csidx));
+			}
+
 		    WRITECSR(mcbase+R_BCM1480_MC_CS_START+start_end_spacing,mask);
 	    
 		    d->ttlbytes += dimmsize;
 		    end_addr = d->ttlbytes;
 		    }
-#if 0	
-		/*
-		 * Check to see if we've hit 4GB mark.  Need to translate total memory from 0x01_0000_0000 to
-		 * 0x02_0000_0000.
-		 */
-		if (d->ttlbytes >= 0x0100000000) {
-		    end_addr &= ~0x0100000000;
-		    end_addr |= 0x0200000000;
-		    channel_start &= ~0x0100000000;
-		    channel_start |= 0x0200000000;
-		    highmem = 0x200;
-		    }
-#endif
 
 		mask = READCSR(mcbase+R_BCM1480_MC_CS_END+start_end_spacing);
 		tmp  = end_addr >> 24;
-		mask |= ((tmp | highmem)  << (16*csidx));	    
+
+		/* 
+		 *  QQQ BV Need a 4GB indicator in d (init_data_t).  ttlbytes is not be big enough as 
+		 *  unsigned long long.
+		 */ 
+
+		if (d->ttlbytes >= 0xFFFFFFFF) {
+		    tmp &= ~highmem;
+		    mask |= ((tmp | highmem4gb)  << (16*csidx));
+		    }
+		else {
+		    mask |= ((tmp | highmem)  << (16*csidx));
+		    }
 		WRITECSR(mcbase+R_BCM1480_MC_CS_END+start_end_spacing,mask);
 		
 		}
@@ -3231,10 +3278,61 @@ static void bcm1480_dram_intlv_64bit(initdata_t *d)
 
 	} /* Channel loop */
 
-#if 0
+
     /* Need to go back and set end registers if we're interleaving and we've hit the 4GB mark */
-    if ((d->ttlbytes >= 0x0100000000) && (d->mc[0].chanintlvint == 1) && (d->mc[0].csint > 0)) {
-	for (mcidx = MC_FIRSTCHANNEL; mcidx < MC_64BIT_CHANNELS; mcidx++) {
+    if (d->ttlbytes >= 0xFFFFFFFF) {
+	if ((d->mc[0].chanintlvint == 1) && (d->mc[0].csint > 0)) {
+	    for (mcidx = MC_FIRSTCHANNEL; mcidx < MC_64BIT_CHANNELS; mcidx++) {
+		for (csidx = 0; csidx < MC_64BIT_CHIPSELS; csidx++) {
+		    uint64_t end_addr;
+		    uint64_t tmp;
+
+		    /* 
+		     * Ignore this chipsel if we're not using it 
+		     */
+		    if (!(d->mc[mcidx].csdata[csidx].flags & CS_PRESENT)) continue;
+
+		    /* 
+		     * 64-bit channels require "ganging" two 32-bit channels, 
+		     * so we have to have the right registers for the given
+		     * chip selects.	     
+		     */
+		    switch (csidx) {
+			case 2: case 3:
+			    col_row_spacing = 0x80;
+			    bank_spacing = 0x20;
+			    start_end_spacing = 0;
+			    break;
+			case 4: case 5:
+			    col_row_spacing = bank_spacing = 0x2000;
+			    start_end_spacing = 0x2000;
+			    break;
+			case 6: case 7:
+			    col_row_spacing = 0x2080;
+			    bank_spacing = 0x2020;
+			    start_end_spacing = 0x2000;
+			    break;
+			default:
+			    col_row_spacing = bank_spacing = start_end_spacing = 0;
+			}
+
+		    mcbase = PHYS_TO_K1(A_BCM1480_MC_BASE(mcidx));
+		    mcbase1 = PHYS_TO_K1(A_BCM1480_MC_BASE(mcidx+1));
+
+		    end_addr = d->ttlbytes;
+		   
+		    mask = READCSR(mcbase+R_BCM1480_MC_CS_END+start_end_spacing);
+		    mask ^= (_SB_MAKEMASK(12,(16*csidx)) & mask);
+
+		    tmp  = end_addr >> 24;
+		    tmp &= ~highmem;
+		    mask |= ((tmp | highmem4gb)  << (16*csidx));
+		    WRITECSR(mcbase+R_BCM1480_MC_CS_END+start_end_spacing,mask);
+		    } // for cs
+
+		} // for chan
+	    } //if both chanintlv and csintlv
+	else if (d->mc[0].csint > 0) {
 	    for (csidx = 0; csidx < MC_64BIT_CHIPSELS; csidx++) {
 		uint64_t end_addr;
 		uint64_t tmp;
@@ -3242,7 +3340,7 @@ static void bcm1480_dram_intlv_64bit(initdata_t *d)
 		/* 
 		 * Ignore this chipsel if we're not using it 
 		 */
-		if (!(d->mc[mcidx].csdata[csidx].flags & CS_PRESENT)) continue;
+		if (!(d->mc[MC_CHAN1].csdata[csidx].flags & CS_PRESENT)) continue;
 
 		/* 
 		 * 64-bit channels require "ganging" two 32-bit channels, 
@@ -3268,24 +3366,21 @@ static void bcm1480_dram_intlv_64bit(initdata_t *d)
 			col_row_spacing = bank_spacing = start_end_spacing = 0;
 		    }
 
-		    mcbase = PHYS_TO_K1(A_BCM1480_MC_BASE(mcidx));
-		    mcbase1 = PHYS_TO_K1(A_BCM1480_MC_BASE(mcidx+1));
+		    mcbase1 = PHYS_TO_K1(A_BCM1480_MC_BASE(MC_CHAN1));
 
 		    end_addr = d->ttlbytes;
-		    end_addr &= ~0x0100000000;
-		    end_addr |= 0x0200000000;
-
-		    mask = READCSR(mcbase+R_BCM1480_MC_CS_END+start_end_spacing);
+		   
+		    mask = READCSR(mcbase1+R_BCM1480_MC_CS_END+start_end_spacing);
 		    mask ^= (_SB_MAKEMASK(12,(16*csidx)) & mask);
 
 		    tmp  = end_addr >> 24;
-		    mask |= ((tmp | 0x200)  << (16*csidx));
-		    WRITECSR(mcbase+R_BCM1480_MC_CS_END+start_end_spacing,mask);
-
-		}
-	    }
+		    tmp &= ~highmem;
+		    mask |= ((tmp | highmem4gb)  << (16*csidx));
+		    WRITECSR(mcbase1+R_BCM1480_MC_CS_END+start_end_spacing,mask);
+		} // for cs
+	    } //else csintlv only
 	}
-#endif 
+
 
     /* Global channel intlv register */
     if (chanintlv0) {

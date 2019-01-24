@@ -55,12 +55,61 @@
 #include "pcivar.h"
 #include "pcireg.h"
 
+#include "lib_physio.h"
+
+
+#define BCM_BYTESWAP32(value)                       \
+       ((((uint32_t)(value) & 0xFF000000) >> 24) |  \
+        (((uint32_t)(value) & 0x00FF0000) >> 8)  |  \
+        (((uint32_t)(value) & 0x0000FF00) << 8)  |  \
+        (((uint32_t)(value) & 0x000000FF) << 24))
+
+#define BCM_BYTESWAP16(value)                       \
+       ((((uint16_t)(value) & 0xFF00) >> 8)  |      \
+        (((uint16_t)(value) & 0x00FF) << 8))
+
+
+#if   defined(ENDIAN_BIG)
+#define BCM_LE32_TO_HOST(x)     BCM_BYTESWAP32(x) 
+#define BCM_HOST_TO_LE32(x)     BCM_BYTESWAP32(x) 
+#define BCM_LE16_TO_HOST(x)     BCM_BYTESWAP16(x) 
+#define BCM_HOST_TO_LE16(x)     BCM_BYTESWAP16(x) 
+#else
+#define BCM_LE32_TO_HOST(x)     (x) 
+#define BCM_HOST_TO_LE32(x)     (x) 
+#define BCM_LE16_TO_HOST(x)     (x) 
+#define BCM_HOST_TO_LE16(x)     (x) 
+#endif
+
+#define BCM_REG_RD32_LE( p_reg32 )       BCM_LE32_TO_HOST(phys_read32( ((physaddr_t) p_reg32))) 
+#define BCM_REG_WR32_LE( p_reg32, val )  phys_write32(((physaddr_t)p_reg32), BCM_HOST_TO_LE32( val ) ) 
+#define BCM_REG_RD16_LE( p_reg16 )       BCM_LE16_TO_HOST( phys_read16( ((physaddr_t)p_reg16 ))) 
+#define BCM_REG_WR16_LE( p_reg16, val )  phys_write16(((physaddr_t)p_reg16), BCM_HOST_TO_LE16( val ) ) 
+#define BCM_REG_RD8( p_reg8 )            phys_read8(  ((physaddr_t)p_reg8))
+#define BCM_REG_WR8(p_reg8, val)         phys_write8( ((physaddr_t)p_reg8), val) 
+
+//#include "sb1250_defs.h"
+#include "sbmips.h"
+
+
+#define FRODO_TESTCTRLREG               0x10f0
+#define FRODO_MDIOCTRLREG               0x8c
+#define FRODO_PLLCTRLREG                0x84
+#define FRODO_SCR2REG                   0x48
+
+#define FRODO_TEST_CTRL_VALUE           0x40000000
+#define FRODO_SCR2_RESET_PHY       0x00000001
+#define FRODO_SCR2_CLEAR           0x00000000
+
+/* assume all Frodo deives have 4 ports for now... */
+#define FRODO_NUM_PORTS(dev, class)     4
+
 /*  *********************************************************************
     *  Macros
     ********************************************************************* */
 
 #if ENDIAN_BIG
-#define _BYTESWAP_ 	/* don't byteswap these disks */
+//#define _BYTESWAP_ 	/* don't byteswap these disks */
 #endif
 
 #define OUTB(x,y) outb(x,y)
@@ -94,8 +143,8 @@ static cfe_devdisp_t idedrv_dispatch = {
 };
 
 const cfe_driver_t frododrv = {
-    "PCI IDE disk",
-    "ide",
+    "FRODO SATA disk",
+    "sata",
     CFE_DEV_DISK,
     &idedrv_dispatch,
     idedrv_probe
@@ -113,6 +162,7 @@ static uint32_t pciidedrv_devlist[] = {
     DEVID(0x1166,0x0213),		/* SW */
     DEVID(0x1166,0x0241),		/* SW */
     DEVID(0x1166,0x0242),		/* SW */
+    DEVID(0x1166,0x024a),		/* SW */ 
     0xFFFFFFFF
 };
 
@@ -127,12 +177,12 @@ static uint32_t pciidedrv_devlist[] = {
 
 static uint8_t idedrv_inb(idecommon_dispatch_t *disp,uint32_t reg)
 {
-    return INB(reg*4+disp->baseaddr);
+    return BCM_REG_RD8((reg*4)+disp->baseaddr);
 }
 
 static uint16_t idedrv_inw(idecommon_dispatch_t *disp,uint32_t reg)
 {
-    return INW(reg*4+disp->baseaddr);
+    return  BCM_REG_RD16_LE((reg*4)+disp->baseaddr);
 }
 
 static void idedrv_ins(idecommon_dispatch_t *disp,uint32_t reg,hsaddr_t buf,int len)
@@ -140,7 +190,7 @@ static void idedrv_ins(idecommon_dispatch_t *disp,uint32_t reg,hsaddr_t buf,int 
     uint16_t data;
 
     while (len > 0) {
-	data = INW(reg*4+disp->baseaddr);
+        data = BCM_REG_RD16_LE((reg*4)+disp->baseaddr);
 
 #ifdef _BYTESWAP_
 	hs_write8(buf,(data >> 8) & 0xFF);
@@ -153,6 +203,8 @@ static void idedrv_ins(idecommon_dispatch_t *disp,uint32_t reg,hsaddr_t buf,int 
 	hs_write8(buf,(data >> 8) & 0xFF);
 	buf++;
 #endif
+    /* xprintf("FRODO: %04X:%04X:%02X%02X\n", (int) len, (int) data, (int) *((uint8_t *) (int)buf-2), (int) *((uint8_t *) (int)buf-1)); */
+
 	len--;
 	len--;
 	}
@@ -161,12 +213,12 @@ static void idedrv_ins(idecommon_dispatch_t *disp,uint32_t reg,hsaddr_t buf,int 
 
 static void idedrv_outb(idecommon_dispatch_t *disp,uint32_t reg,uint8_t val)
 {
-    OUTB(reg*4+disp->baseaddr,val);
+    BCM_REG_WR8((reg*4)+disp->baseaddr,val);
 }
 
 static void idedrv_outw(idecommon_dispatch_t *disp,uint32_t reg,uint16_t val)
 {
-    OUTW(reg*4+disp->baseaddr,val);
+    BCM_REG_WR16_LE((reg*4)+disp->baseaddr,val);
 }
 
 static void idedrv_outs(idecommon_dispatch_t *disp,uint32_t reg,hsaddr_t buf,int len)
@@ -180,7 +232,7 @@ static void idedrv_outs(idecommon_dispatch_t *disp,uint32_t reg,hsaddr_t buf,int
 	data = (uint16_t) hs_read8(buf+0) + ((uint16_t) hs_read8(buf+1) << 8);
 #endif
 
-	OUTW(reg*4+disp->baseaddr,data);
+	BCM_REG_WR16_LE((reg*4)+disp->baseaddr,data);
 
 	buf++;
 	buf++;
@@ -208,7 +260,9 @@ static int pciidedrv_find(uint32_t devid,uint32_t *list)
     int idx = 0;
 
     while (list[idx] != 0xFFFFFFFF) {
+
 	if (list[idx] == devid) return idx;
+    
 	idx++;
 	}
 
@@ -256,87 +310,134 @@ static void idedrv_probe(cfe_driver_t *drv,
 
     index = 0;
 
-    for (;;) {
-	if (pci_find_class(PCI_CLASS_MASS_STORAGE,index,&tag) != 0) break;
-	index++;
+    for (;;) 
+    {
+        if (pci_find_class(PCI_CLASS_MASS_STORAGE,index,&tag) != 0) break;
+        index++;
 
-	devid = pci_conf_read(tag,PCI_ID_REG);
-	classid = pci_conf_read(tag,PCI_CLASS_REG);
+        devid = pci_conf_read(tag,PCI_ID_REG);
+        classid = pci_conf_read(tag,PCI_CLASS_REG);
 
-	/* 
-	 * This driver will only accept certain device IDs.
-	 */
-	if (pciidedrv_find(devid,pciidedrv_devlist) < 0) {
-	    continue;
+        /* 
+         * This driver will only accept certain device IDs.
+         */
+        if (pciidedrv_find(devid,pciidedrv_devlist) < 0) {
+            continue;
 	    }
 
-	/*
-	 * Mapping register #5 is the MMIO BAR.
-	 */
+        /*
+         * Mapping register #5 is the MMIO BAR.
+         */
 
-	reg = pci_conf_read(tag,PCI_MAPREG(5));
+        reg = pci_conf_read(tag,PCI_MAPREG(5));
 
-	reg &= ~PCI_MAPREG_TYPE_MASK;
+        reg &= ~PCI_MAPREG_TYPE_MASK;
 
-	unit = (int) probe_b;
 
-	softc = (idecommon_t *) KMALLOC(sizeof(idecommon_t),0);
-	disp = (idecommon_dispatch_t *) KMALLOC(sizeof(idecommon_dispatch_t),0);
-
-	if (!softc || !disp) {
-	    if (softc) KFREE(softc);
-	    if (disp) KFREE(disp);
-	    return;		/* out of memory, stop here */
+        /* 
+         * Make sure BAR is valid, HT1000 has second device instance without MM bar 
+         */
+        if (reg == 0) 
+        {
+            continue;
 	    }
 
+ 
 
-	softc->idecommon_addr = reg + (unit * 0x100);
-	disp->ref = softc;
-	disp->baseaddr = softc->idecommon_addr;
-	softc->idecommon_deferprobe = 0;
-	softc->idecommon_dispatch = disp;
-	softc->idecommon_unit = 0;
+        /* Create CFE device instance for each port */
+        for (unit = 0; unit < FRODO_NUM_PORTS(devid, classid); unit++) 
+        {
+            /* unit = (int) probe_b; */
 
-	disp->outb = idedrv_outb;
-	disp->outw = idedrv_outw;
-	disp->outs = idedrv_outs;
+            softc = (idecommon_t *) KMALLOC(sizeof(idecommon_t),0);
+            disp = (idecommon_dispatch_t *) KMALLOC(sizeof(idecommon_dispatch_t),0);
 
-	disp->inb = idedrv_inb;
-	disp->inw = idedrv_inw;
-	disp->ins = idedrv_ins;
+            if (!softc || !disp) {
+                if (softc) KFREE(softc);
+                if (disp) KFREE(disp);
+                return;		/* out of memory, stop here */
+            }
 
-	/*
-	     * If we're autoprobing, do it now.  Loop back if we have
-	     * trouble finding the device.  
-	     * 
-	     * If not autoprobing, assume the device is there and set the
-	     * common routines to double check later.
-	     */
+            softc->idecommon_addr = reg + (unit * 0x100);
+            disp->ref = softc;
+            disp->baseaddr = softc->idecommon_addr;
+            softc->idecommon_deferprobe = 0;
+            softc->idecommon_dispatch = disp;
+            softc->idecommon_unit = 0;
 
-	if (IDE_PROBE_GET_TYPE(probe_b,unit) == IDE_DEVTYPE_AUTO) {
-	    res = idecommon_devprobe(softc,1);
-	    if (res < 0) {
-		KFREE(softc);
-		KFREE(disp);
-		continue;
-		}
-	    }
-	else {
-	    idecommon_init(softc,IDE_PROBE_GET_TYPE(probe_b,unit));
-	    softc->idecommon_deferprobe = 1;
-	    }
+            disp->outb = idedrv_outb;
+            disp->outw = idedrv_outw;
+            disp->outs = idedrv_outs;
 
-	xsprintf(descr,"%s unit %d at I/O %04X",drv->drv_description,
-		 softc->idecommon_unit,softc->idecommon_addr);
-	xsprintf(unitstr,"%d",unit);
+            disp->inb = idedrv_inb;
+            disp->inw = idedrv_inw;
+            disp->ins = idedrv_ins;
 
-	realdrv = (cfe_driver_t *) &frododrv;
+            {
+                cfe_usleep( 10000 );
 
-	idecommon_attach(&idedrv_dispatch);
-	cfe_attach(realdrv,softc,unitstr,descr);
-	attached++;
+                uint32_t port_select, ncqrdval, ncqfixval, mdioctrl;
+                // Enable MDIO Space
+                BCM_REG_WR32_LE( reg + FRODO_TESTCTRLREG, FRODO_TEST_CTRL_VALUE | 0x00000001); 
+                cfe_usleep( 10000 );
 
-	}
+                port_select = (((1 << unit) << 16) | (0x2007));
+                BCM_REG_WR32_LE( reg + FRODO_MDIOCTRLREG, port_select);
+                cfe_usleep( 10000 );
+
+                ncqrdval = 0x0000400d;
+                BCM_REG_WR32_LE( reg + FRODO_MDIOCTRLREG, ncqrdval );
+                cfe_usleep( 10000 );
+	
+                ncqfixval = BCM_REG_RD32_LE( reg + FRODO_MDIOCTRLREG );
+                ncqfixval = (ncqfixval & 0xFFFF0000);
+                ncqfixval = (ncqfixval | 0x0004200d);
+                BCM_REG_WR32_LE( reg + FRODO_MDIOCTRLREG, ncqfixval);
+                cfe_usleep( 10000 );
+    
+                // Disable MDIO Access
+                mdioctrl =  BCM_REG_RD32_LE( reg + FRODO_TESTCTRLREG );
+                mdioctrl &= (~FRODO_TEST_CTRL_VALUE);
+                BCM_REG_WR32_LE( reg + FRODO_TESTCTRLREG, mdioctrl);
+
+                BCM_REG_WR32_LE( disp->baseaddr + FRODO_SCR2REG, FRODO_SCR2_RESET_PHY);
+                cfe_usleep( 10000 );
+                BCM_REG_WR32_LE( disp->baseaddr + FRODO_SCR2REG, FRODO_SCR2_CLEAR);
+                cfe_usleep( 10000 );
+            }
+
+            /*
+             * If we're autoprobing, do it now.  Loop back if we have
+             * trouble finding the device.  
+             * 
+             * If not autoprobing, assume the device is there and set the
+             * common routines to double check later.
+             */
+    
+            if (IDE_PROBE_GET_TYPE(probe_b,unit) == IDE_DEVTYPE_AUTO) {
+                res = idecommon_devprobe(softc,1);
+                if (res < 0) {
+                    KFREE(softc);
+                    KFREE(disp);
+                    continue;
+                }
+            }
+            else {
+                idecommon_init(softc,IDE_PROBE_GET_TYPE(probe_b,unit));
+                softc->idecommon_deferprobe = 1;
+            }
+
+            xsprintf(descr,"%s unit %d at %04X",drv->drv_description,
+                     softc->idecommon_unit,softc->idecommon_addr);
+            xsprintf(unitstr,"%d",unit);
+
+            realdrv = (cfe_driver_t *) &frododrv;
+
+            idecommon_attach(&idedrv_dispatch);
+            cfe_attach(realdrv,softc,unitstr,descr);
+            attached++;
+        }
+    }
 
     xprintf("FRODO: %d controllers found\n",attached);
 }

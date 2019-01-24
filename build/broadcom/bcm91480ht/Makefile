@@ -8,6 +8,7 @@ CFG_OPTIONS ?=
 CFG_BOARDNAME = "BCM91480HT"
 CFG_PCI ?= 1
 CFG_LDT ?= 1
+CFG_USB ?= 1
 CFG_L2_RAM ?= 0
 TOP = ../../../cfe
 ARCH = mips
@@ -55,7 +56,7 @@ CFLAGS += -DSIBYTE_HDR_FEATURES="(SIBYTE_HDR_FMASK_1480_ALL)"
 # Main target for normal builds
 #
 
-ALL : cfe cfe.flash
+ALL : cfe cfe.flash 
 	echo done
 
 #

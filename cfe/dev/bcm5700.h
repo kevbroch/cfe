@@ -71,6 +71,7 @@
 #define K_PCI_ID_BCM5704C      0x1648
 #define K_PCI_ID_BCM5704S      0x16A8
 #define K_PCI_ID_BCM5705       0x1653
+#define K_PCI_ID_BCM5780       0x1668
 
 #define _DD_MAKEMASK1(n) (1 << (n))
 #define _DD_MAKEMASK(v,n) ((((1)<<(v))-1) << (n))
@@ -335,6 +336,8 @@
 
 #define R_RD_DMA_MODE           0x4800
 #define R_RD_DMA_STAT           0x4804
+
+#define RD_DMA_MODE_FIFO_SIZE_128 _DD_MAKEMASK1(17)
 
 /* Registers 0x4C00 - 0x4FFF are Write DMA Control registers */
 

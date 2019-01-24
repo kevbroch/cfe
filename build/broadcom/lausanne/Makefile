@@ -25,6 +25,8 @@ ifeq ($(strip ${CFG_BIENDIAN}),0)
 CLEANOBJS += cfe.bin.le cfe.bin.be
 endif
 
+CFLAGS += -DSIBYTE_HDR_FEATURES="(SIBYTE_HDR_FMASK_1250_ALL|SIBYTE_HDR_FMASK_112x_ALL)"
+
 #
 # Main target for normal builds
 #

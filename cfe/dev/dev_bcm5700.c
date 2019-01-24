@@ -62,6 +62,13 @@ extern void *CPUCFG_MEMCPY(void *dest, const void *src, size_t cnt);
 #include "bcm5700.h"
 #include "mii.h"
 
+
+
+
+static uint32_t l_phys_read32(uint32_t addr );
+static void l_phys_write32(uint32_t addr, uint32_t val);
+
+
 /* This is a driver for the Broadcom 570x ("Tigon 3") 10/100/1000 MAC.
    Currently, the 5700, 5701, 5703C, 5704C and 5705 have been tested.
    Only 10/100/1000 BASE-T PHYs are supported; variants with SerDes
@@ -221,7 +228,12 @@ static void t3_ether_probe(cfe_driver_t *drv,
 
 #define RXR_MAX_RINGS_05      1
 #define RXR_RING_ENTRIES_05   512
+  
+#define RXR_MAX_RINGS_BCM571X_FAMILY    1
+#define RXR_RING_ENTRIES_BCM571X_FAMILY 512
 
+
+#define BCM571X_FAMILY_DEVICE(dev )  ( (dev) == K_PCI_ID_BCM5780 )
 
 /* BCM570x Send Buffer Descriptors as a struct.  Pages 100-101 */
 
@@ -359,7 +371,7 @@ static t3_stats_t *zero_stats = NULL;
 
 /* End of 570X defined data structures */
 
-/* The maximum supported BD ring index (QOS) for tranmit or receive. */
+/* The maximum supported BD ring index (QOS) for transmit or receive. */
 
 #define MAX_RI                 1
 
@@ -489,8 +501,8 @@ typedef struct t3_ether_s {
 
 #define CSR_MATCH_MODE        PCI_MATCH_BITS
 
-#define READCSR(sc,csr)       (phys_read32((sc)->regbase + (csr)))
-#define WRITECSR(sc,csr,val)  (phys_write32((sc)->regbase + (csr), (val)))
+#define READCSR(sc,csr)       (l_phys_read32((sc)->regbase + (csr)))
+#define WRITECSR(sc,csr,val)  (l_phys_write32((sc)->regbase + (csr), (val)))
 
 #if PIOSWAP
 #define READMBOX(sc,csr)      (phys_read32((sc)->regbase+((csr)^4)))
@@ -500,11 +512,11 @@ typedef struct t3_ether_s {
 #define WRITEMEM(sc,csr,val)  (phys_write32((sc)->membase+(csr), (val)))
 
 #else
-#define READMBOX(sc,csr)      (phys_read32((sc)->regbase+(csr)))
-#define WRITEMBOX(sc,csr,val) (phys_write32((sc)->regbase+(csr), (val)))
+#define READMBOX(sc,csr)      (l_phys_read32((sc)->regbase+(csr)))
+#define WRITEMBOX(sc,csr,val) (l_phys_write32((sc)->regbase+(csr), (val)))
 
-#define READMEM(sc,csr)       (phys_read32((sc)->membase+((csr)^4)))
-#define WRITEMEM(sc,csr,val)  (phys_write32((sc)->membase+((csr)^4), (val)))
+#define READMEM(sc,csr)       (l_phys_read32((sc)->membase+((csr)^4)))
+#define WRITEMEM(sc,csr,val)  (l_phys_write32((sc)->membase+((csr)^4), (val)))
 
 #endif
 #endif  /* MATCH_BYTES */
@@ -722,6 +734,11 @@ t3_procrxring(t3_ether_t *sc)
 
     rxr_1_index = sc->rxr_1_index;
     rxc = &(sc->rxr_1[rxr_1_index]);
+
+#if T3_BRINGUP
+	    xprintf("%s: rx error %04X\n", t3_devname(sc), rxc->error_flag);
+#endif
+
     do {
 	CACHE_DMA_INVAL(rxc, sizeof(t3_rcv_bd_t));
 	pkt = ETH_PKT_BASE(PCI_TO_PTR(rxc->bufptr_lo));
@@ -1300,6 +1317,10 @@ mii_autonegotiate(t3_ether_t *sc)
        get STATUS_LINKCHNG assertions. */
     mode = READCSR(sc, R_MAC_MODE);
 
+#if T3_DEBUG
+    xprintf("Mode0:%08X ", (int) mode);
+#endif
+
     xprintf("%s: Link speed: ", t3_devname(sc));
     if ((status & BMSR_ANCOMPLETE) != 0) {
 	/* A link partner was negogiated... */
@@ -1310,6 +1331,10 @@ mii_autonegotiate(t3_ether_t *sc)
 	    xremote = 0;
 
 	mode &= ~(M_MACM_PORTMODE | M_MACM_HALFDUPLEX);
+
+#if T3_DEBUG
+	xprintf("Mode1:%08X ", (int) mode);
+#endif
 
 	if ((xremote & K1STSR_LP1KFD) != 0) {
 	    xprintf("1000BaseT FDX\n");
@@ -1343,6 +1368,9 @@ mii_autonegotiate(t3_ether_t *sc)
 	    }
 
 	WRITECSR(sc, R_MAC_MODE, mode);
+#if T3_DEBUG
+    	xprintf("Mode2:%08X ", (int) mode);
+#endif
 	}
     else {
 	/* no link partner convergence */
@@ -1412,7 +1440,7 @@ t3_coldreset(t3_ether_t *sc)
     
     /* Clear and disable INTA output. (2) */
     mhc = READCSR(sc, R_MISC_HOST_CTRL);
-    mhc |= M_MHC_MASKPCIINT | M_MHC_CLEARINTA;
+    mhc |= M_MHC_MASKPCIINT | M_MHC_CLEARINTA | M_MHC_ENINDIRECT | M_MHC_ENCLKCTRLRW;
     WRITECSR(sc, R_MISC_HOST_CTRL, mhc);
 
     /* Save some config registers modified by core clock reset (3). */
@@ -1440,7 +1468,7 @@ t3_coldreset(t3_ether_t *sc)
 
     /* Undo some of the resets (6) */
     mhc = READCSR(sc, R_MISC_HOST_CTRL);
-    mhc |= M_MHC_MASKPCIINT;
+    mhc |= M_MHC_MASKPCIINT | M_MHC_ENINDIRECT | M_MHC_ENCLKCTRLRW;
     WRITECSR(sc, R_MISC_HOST_CTRL, mhc);
 
     /* Verify that core clock resets completed and autocleared. */
@@ -1507,9 +1535,30 @@ t3_coldreset(t3_ether_t *sc)
 	    }
 	if (READMEM(sc, A_PXE_MAILBOX) != ~T3_MAGIC_NUMBER)
 	    xprintf("bcm5700: no firmware PXE rendevous\n");
+
+#if T3_DEBUG
+	uint32_t mag;
+	mag = READMEM(sc, A_PXE_MAILBOX);
+	xprintf("magic number: %X %X\n",mag,~T3_MAGIC_NUMBER);
+
+//	WRITEMEM(sc, A_PXE_MAILBOX, T3_MAGIC_NUMBER);
+
+	mag = READMEM(sc, A_PXE_MAILBOX);	
+	xprintf("magic number: %X %X\n",mag,~T3_MAGIC_NUMBER);
+#endif
+
 	}
     else
+    {
+
+#if T3_DEBUG
+	uint32_t mag;
+	mag = READMEM(sc, A_PXE_MAILBOX);
+	xprintf("magic number: %X %X\n",mag,~T3_MAGIC_NUMBER);
+#endif
+
 	xprintf("bcm5700: PXE magic number already set\n");
+	}
 
     /* Clear Ethernet MAC Mode (20) */
     WRITECSR(sc, R_MAC_MODE, 0x00000000);
@@ -1566,6 +1615,18 @@ t3_init_registers(t3_ether_t *sc)
 	case K_PCI_ID_BCM5702:
 	    dmac |= V_DMAC_MINDMA(0xF);    /* "Recommended" */
 	    break;
+
+	case K_PCI_ID_BCM5780:
+	    /* XXX magic values, Broadcom-supplied Linux driver */
+	    dmac |= (1 << 20) | (1 << 18) | M_DMAC_ONEDMA;
+#if T3_DEBUG
+	    dmac |= 0x00144000;
+#endif
+	    break;
+
+     /* case other 5714 family */
+	    /* dmac |= (1 << 20) | (1 << 18) | (1 << 15); */
+
 	default:
 	    dmac |= V_DMAC_MINDMA(0x0);
 	    break;
@@ -1595,7 +1656,7 @@ t3_init_registers(t3_ether_t *sc)
 
     /* Indicate driver ready, disable checksums (27, 28) */
     mcr |= M_MCTL_HOSTUP;
-    mcr |= (M_MCTL_NOTXPHSUM | M_MCTL_NORXPHSUM);
+    mcr |= (M_MCTL_NOTXPHSUM | M_MCTL_NORXPHSUM | M_MCTL_HOSTBDS);
     WRITECSR(sc, R_MODE_CTRL, mcr);
 
     /* Configure timer (29) */
@@ -1616,41 +1677,57 @@ t3_init_pools(t3_ether_t *sc)
     /* Steps 30-36.  These use "recommended" settings (p 150) */
 
     /* Configure the MAC memory pool (30) */
-    if (sc->device != K_PCI_ID_BCM5705) {
-	WRITECSR(sc, R_BMGR_MBUF_BASE, A_BUFFER_POOL);
-	WRITECSR(sc, R_BMGR_MBUF_LEN, L_BUFFER_POOL);
-	}
-    else {
-	/* Note: manual appears to recommend not even writing these (?) */
-	/* WRITECSR(sc, R_BMGR_MBUF_BASE, A_RXMBUF); */
-	/* WRITECSR(sc, R_BMGR_MBUF_LEN, 0x8000); */
+    if ((sc->device != K_PCI_ID_BCM5705) && 
+        !BCM571X_FAMILY_DEVICE(sc->device)) {
+
+        WRITECSR(sc, R_BMGR_MBUF_BASE, A_BUFFER_POOL);
+        WRITECSR(sc, R_BMGR_MBUF_LEN, L_BUFFER_POOL);
+	
+	} 
+    else 
+    {
+        /* Note: manual appears to recommend not even writing these (?) */
+        /* WRITECSR(sc, R_BMGR_MBUF_BASE, A_RXMBUF); */
+        /* WRITECSR(sc, R_BMGR_MBUF_LEN, 0x8000); */
 	}
 
-    /* Configure the MAC DMA resource pool (31) */
-    WRITECSR(sc, R_BMGR_DMA_BASE, A_DMA_DESCS);
-    WRITECSR(sc, R_BMGR_DMA_LEN,  L_DMA_DESCS);
+    if (BCM571X_FAMILY_DEVICE(sc->device))
+    {
 
-    /* Configure the MAC memory watermarks (32) */
-    WRITECSR(sc, R_BMGR_MBUF_DMA_LOW, 0x50);
-    WRITECSR(sc, R_BMGR_MBUF_RX_LOW,  0x20);
-    WRITECSR(sc, R_BMGR_MBUF_HIGH,    0x60);
+       /* Configure the MAC memory watermarks for BCM571X family (32) */
+        WRITECSR(sc, R_BMGR_MBUF_DMA_LOW, 0x0);
+        WRITECSR(sc, R_BMGR_MBUF_RX_LOW,  0x10);
+        WRITECSR(sc, R_BMGR_MBUF_HIGH,    0x60);
+    }
+    else
+    {
 
-    /* Configure the DMA resource watermarks (33) */
-    WRITECSR(sc, R_BMGR_DMA_LOW,   5);
-    WRITECSR(sc, R_BMGR_DMA_HIGH, 10);
-    
-    /* Enable the buffer manager (34, 35) */
-    mode = READCSR(sc, R_BMGR_MODE);
-    mode |= (M_BMODE_ENABLE | M_BMODE_MBUFLOWATTN);
-    WRITECSR(sc, R_BMGR_MODE, mode);
-    for (timeout = CFE_HZ/2; timeout > 0; timeout -= CFE_HZ/10) {
-	mode = READCSR(sc, R_BMGR_MODE);
-	if ((mode & M_BMODE_ENABLE) != 0)
-	    break;
-	cfe_sleep(CFE_HZ/10);
-	}
-    if ((mode & M_BMODE_ENABLE) == 0)
-	xprintf("bcm5700: buffer manager not enabled\n");
+       /* Configure the MAC DMA resource pool (31) */
+        WRITECSR(sc, R_BMGR_DMA_BASE, A_DMA_DESCS);
+        WRITECSR(sc, R_BMGR_DMA_LEN,  L_DMA_DESCS);
+
+        /* Configure the MAC memory watermarks (32) */
+        WRITECSR(sc, R_BMGR_MBUF_DMA_LOW, 0x50);
+        WRITECSR(sc, R_BMGR_MBUF_RX_LOW,  0x20);
+        WRITECSR(sc, R_BMGR_MBUF_HIGH,    0x60);
+
+        /* Configure the DMA resource watermarks (33) */
+        WRITECSR(sc, R_BMGR_DMA_LOW,   5);
+        WRITECSR(sc, R_BMGR_DMA_HIGH, 10);
+
+        /* Enable the buffer manager (34, 35) */
+        mode = READCSR(sc, R_BMGR_MODE);
+        mode |= (M_BMODE_ENABLE | M_BMODE_MBUFLOWATTN);
+        WRITECSR(sc, R_BMGR_MODE, mode);
+        for (timeout = CFE_HZ/2; timeout > 0; timeout -= CFE_HZ/10) {
+            mode = READCSR(sc, R_BMGR_MODE);
+            if ((mode & M_BMODE_ENABLE) != 0)
+                break;
+            cfe_sleep(CFE_HZ/10);
+        }
+        if ((mode & M_BMODE_ENABLE) == 0)
+            xprintf("bcm5700: buffer manager not enabled\n");
+    }
 
     /* Enable internal queues (36) */
     WRITECSR(sc, R_FTQ_RESET, 0xFFFFFFFF);
@@ -1674,45 +1751,87 @@ t3_init_rings(t3_ether_t *sc)
     /* Initialize RCBs for Standard Receive Buffer Ring (37) */
     WRITECSR(sc, R_STD_RCV_BD_RCB+RCB_HOST_ADDR_HIGH, 0);
     WRITECSR(sc, R_STD_RCV_BD_RCB+RCB_HOST_ADDR_LOW, PTR_TO_PCI(sc->rxp_std));
-    WRITECSR(sc, R_STD_RCV_BD_RCB+RCB_CTRL, V_RCB_MAXLEN(ETH_PKTBUF_LEN));
+    /* 5714 family device removed JUMBO ring */
+    if ( !BCM571X_FAMILY_DEVICE(sc->device) )
+    {
+        WRITECSR(sc, R_STD_RCV_BD_RCB+RCB_CTRL, V_RCB_MAXLEN(ETH_PKTBUF_LEN));
+    }
+    else
+    {
+        WRITECSR(sc, R_STD_RCV_BD_RCB+RCB_CTRL, V_RCB_MAXLEN(RXP_STD_ENTRIES));
+    }
     WRITECSR(sc, R_STD_RCV_BD_RCB+RCB_NIC_ADDR, A_STD_RCV_RINGS);
 
-    /* Disable RCBs for Jumbo and Mini Receive Buffer Rings (38,39) */
-    WRITECSR(sc, R_JUMBO_RCV_BD_RCB+RCB_CTRL,
-	     RCB_FLAG_USE_EXT_RCV_BD | RCB_FLAG_RING_DISABLED);
-    WRITECSR(sc, R_JUMBO_RCV_BD_RCB+RCB_NIC_ADDR, A_JUMBO_RCV_RINGS);
-    WRITECSR(sc, R_MINI_RCV_BD_RCB+RCB_CTRL, RCB_FLAG_RING_DISABLED);
-    WRITECSR(sc, R_MINI_RCV_BD_RCB+RCB_NIC_ADDR, 0xe000);
+    /* 5714 family device removed JUMBO ring */
+    if ( !BCM571X_FAMILY_DEVICE(sc->device) )
+    {
+        /* Disable RCBs for Jumbo and Mini Receive Buffer Rings (38,39) */
+        WRITECSR(sc, R_JUMBO_RCV_BD_RCB+RCB_CTRL,
+                 RCB_FLAG_USE_EXT_RCV_BD | RCB_FLAG_RING_DISABLED);
+        WRITECSR(sc, R_JUMBO_RCV_BD_RCB+RCB_NIC_ADDR, A_JUMBO_RCV_RINGS);
+        WRITECSR(sc, R_MINI_RCV_BD_RCB+RCB_CTRL, RCB_FLAG_RING_DISABLED);
+        WRITECSR(sc, R_MINI_RCV_BD_RCB+RCB_NIC_ADDR, 0xe000);
+        
+        /* Set BD ring replenish thresholds (40) */
+        WRITECSR(sc, R_MINI_RCV_BD_THRESH, 128);
+    }
 
-    /* Set BD ring replenish thresholds (40) */
-    WRITECSR(sc, R_MINI_RCV_BD_THRESH, 128);
 #if T3_BRINGUP
     WRITECSR(sc, R_STD_RCV_BD_THRESH, 1);
 #else
     /* Note that STD_RCV_BD_THRESH cannot exceed MIN_RXP_STD_BDS */
     WRITECSR(sc, R_STD_RCV_BD_THRESH, 6);
 #endif
-    WRITECSR(sc, R_JUMBO_RCV_BD_THRESH, 16);
 
-    /* Disable unused send producer rings 2-16 (41) */
-    for (rcbp = A_SND_RCB(1); rcbp <= A_SND_RCB(16); rcbp += RCB_SIZE)
-	WRITEMEM(sc, rcbp+RCB_CTRL, RCB_FLAG_RING_DISABLED);
+    /* 5714 family device removed JUMBO ring */
+    if ( !BCM571X_FAMILY_DEVICE(sc->device) )
+    {
+        WRITECSR(sc, R_JUMBO_RCV_BD_THRESH, 16);
+    }
 
-    /* Initialize send producer index registers (42) */
-    for (i = 1; i <= TXP_MAX_RINGS; i++) {
-	WRITEMBOX(sc, R_SND_BD_PI(i), 0);
-	WRITEMBOX(sc, R_SND_BD_NIC_PI(i), 0);
-	}
+      /* 5714 family device removed send rings 2-16 */
+    if ( !BCM571X_FAMILY_DEVICE(sc->device) )
+     {
+        /* Disable unused send producer rings 2-16 (41) */
+        for (rcbp = A_SND_RCB(1); rcbp <= A_SND_RCB(16); rcbp += RCB_SIZE)
+            WRITEMEM(sc, rcbp+RCB_CTRL, RCB_FLAG_RING_DISABLED);
+
+        /* Initialize send producer index registers (42) */
+        for (i = 1; i <= TXP_MAX_RINGS; i++) {
+            WRITEMBOX(sc, R_SND_BD_PI(i), 0);
+            WRITEMBOX(sc, R_SND_BD_NIC_PI(i), 0);
+        }
+    }
+    else
+    {
+        WRITEMEM(sc, A_SND_RCB(1) + RCB_CTRL, RCB_FLAG_RING_DISABLED);
+        WRITEMBOX(sc, R_SND_BD_PI(1), 0);
+        WRITEMBOX(sc, R_SND_BD_NIC_PI(1), 0);
+    }
+
 
     /* Initialize send producer ring 1 (43) */
     WRITEMEM(sc, A_SND_RCB(1)+RCB_HOST_ADDR_HIGH, 0);
     WRITEMEM(sc, A_SND_RCB(1)+RCB_HOST_ADDR_LOW, PTR_TO_PCI(sc->txp_1));
     WRITEMEM(sc, A_SND_RCB(1)+RCB_CTRL, V_RCB_MAXLEN(TXP_RING_ENTRIES));
-    WRITEMEM(sc, A_SND_RCB(1)+RCB_NIC_ADDR, A_SND_RINGS);
+    /* Only program send ring address for early chips */
+    if ( !BCM571X_FAMILY_DEVICE(sc->device) && 
+         (sc->device != K_PCI_ID_BCM5705) )
+    {
+        WRITEMEM(sc, A_SND_RCB(1)+RCB_NIC_ADDR, A_SND_RINGS);
+    }
 
-    /* Disable unused receive return rings (44) */
-    for (rcbp = A_RTN_RCB(1); rcbp <= A_RTN_RCB(16); rcbp += RCB_SIZE)
-	WRITEMEM(sc, rcbp+RCB_CTRL, RCB_FLAG_RING_DISABLED);
+    /* 5714 family device removed recieve return rings 2-16 */
+    if ( !BCM571X_FAMILY_DEVICE(sc->device) )
+    {
+        /* Disable unused receive return rings (44) */
+        for (rcbp = A_RTN_RCB(1); rcbp <= A_RTN_RCB(16); rcbp += RCB_SIZE)
+            WRITEMEM(sc, rcbp+RCB_CTRL, RCB_FLAG_RING_DISABLED);
+    }
+    else
+    {
+        WRITEMEM(sc, A_RTN_RCB(1) + RCB_CTRL, RCB_FLAG_RING_DISABLED);
+    }
 
     /* Initialize receive return ring 1 (45) */
     WRITEMEM(sc, A_RTN_RCB(1)+RCB_HOST_ADDR_HIGH, 0);
@@ -1722,8 +1841,13 @@ t3_init_rings(t3_ether_t *sc)
 
     /* Initialize receive producer ring mailboxes (46) */
     WRITEMBOX(sc, R_RCV_BD_STD_PI, 0);
-    WRITEMBOX(sc, R_RCV_BD_JUMBO_PI, 0);
-    WRITEMBOX(sc, R_RCV_BD_MINI_PI, 0);
+
+    /* 5714 family device removed jumbo / mini rings */
+    if ( !BCM571X_FAMILY_DEVICE(sc->device) )
+    {
+        WRITEMBOX(sc, R_RCV_BD_JUMBO_PI, 0);
+        WRITEMBOX(sc, R_RCV_BD_MINI_PI, 0);
+    }
 
     return 0;
 }
@@ -1821,6 +1945,7 @@ t3_init_coalescing(t3_ether_t *sc)
     WRITECSR(sc, R_RCV_COAL_TICKS, 150);
     WRITECSR(sc, R_RCV_COAL_MAX_CNT, 10);
 #endif
+
     WRITECSR(sc, R_RCV_COAL_INT_TICKS, 0);
     WRITECSR(sc, R_RCV_COAL_INT_CNT, 0);
 #if T3_BRINGUP
@@ -1830,6 +1955,7 @@ t3_init_coalescing(t3_ether_t *sc)
     WRITECSR(sc, R_SND_COAL_TICKS, 150);
     WRITECSR(sc, R_SND_COAL_MAX_CNT, 10);
 #endif
+
     WRITECSR(sc, R_SND_COAL_INT_TICKS, 0);
     WRITECSR(sc, R_SND_COAL_INT_CNT, 0);
 
@@ -1871,8 +1997,12 @@ t3_init_dma(t3_ether_t *sc)
     /* Enable receive BD completion, placement, and selector blocks (69-71) */
     WRITECSR(sc, R_RCV_BD_COMP_MODE, M_MODE_ENABLE | M_MODE_ATTNENABLE);
     WRITECSR(sc, R_RCV_LIST_MODE, M_MODE_ENABLE);
-    if (sc->device != K_PCI_ID_BCM5705) {
-	WRITECSR(sc, R_RCV_LIST_SEL_MODE, M_MODE_ENABLE | M_MODE_ATTNENABLE);
+
+    /* Turn on RX list selector state machine. */
+    if ( (sc->device != K_PCI_ID_BCM5705) 
+         && !BCM571X_FAMILY_DEVICE(sc->device) ) {
+
+	    WRITECSR(sc, R_RCV_LIST_SEL_MODE, M_MODE_ENABLE | M_MODE_ATTNENABLE);
 	}
 
     /* Enable DMA engines, enable and clear statistics (72, 73) */
@@ -1880,6 +2010,7 @@ t3_init_dma(t3_ether_t *sc)
     mode |= (M_MACM_FHDEENB | M_MACM_RDEENB | M_MACM_TDEENB |
 	     M_MACM_RXSTATSENB | M_MACM_RXSTATSCLR |
 	     M_MACM_TXSTATSENB | M_MACM_TXSTATSCLR);
+
 #if T3_AUTOPOLL
     mode |= V_MACM_PORTMODE(K_MACM_PORTMODE_MII);
 #endif
@@ -1896,13 +2027,35 @@ t3_init_dma(t3_ether_t *sc)
     WRITEMBOX(sc, R_INT_MBOX(0), 0);
 
     /* Enable DMA completion block (76) */
-    if (sc->device != K_PCI_ID_BCM5705) {
-	WRITECSR(sc, R_DMA_COMP_MODE, M_MODE_ENABLE);
-	}
+    if ( (sc->device != K_PCI_ID_BCM5705) 
+        && !BCM571X_FAMILY_DEVICE(sc->device) )
+    {
+        WRITECSR(sc, R_DMA_COMP_MODE, M_MODE_ENABLE);
+    }
 
     /* Configure write and read DMA modes (77, 78) */
     WRITECSR(sc, R_WR_DMA_MODE, M_MODE_ENABLE | M_ATTN_ALL);
     WRITECSR(sc, R_RD_DMA_MODE, M_MODE_ENABLE | M_ATTN_ALL);
+
+#if 0   
+    mode = M_MODE_ENABLE | M_ATTN_ALL;
+    if ( sc->device == K_PCI_ID_BCM5705) 
+    { 
+      	mode |= RD_DMA_MODE_FIFO_SIZE_128;
+    }
+    else if (  BCM571X_FAMILY_DEVICE(sc->device) )
+    {
+        /*
+         * XXX: magic values.
+         * From Broadcom-supplied Linux driver;  apparently
+         * required to workaround a DMA bug affecting TSO
+         * on bcm575x/bcm5721?
+         */
+        mode |= (1 << 27);
+    }
+
+    WRITECSR(sc, R_RD_DMA_MODE, mode );
+#endif
 
     return 0;
 }
@@ -1922,10 +2075,22 @@ t3_init_enable(t3_ether_t *sc)
 
     /* Enable completion functional blocks (79-82) */
     WRITECSR(sc, R_RCV_COMP_MODE, M_MODE_ENABLE | M_MODE_ATTNENABLE);
-    if (sc->device != K_PCI_ID_BCM5705) {
-	WRITECSR(sc, R_MBUF_FREE_MODE, M_MODE_ENABLE);
+    if ( (sc->device != K_PCI_ID_BCM5705) &&
+         !BCM571X_FAMILY_DEVICE(sc->device) ) {
+
+        WRITECSR(sc, R_MBUF_FREE_MODE, M_MODE_ENABLE);
+
 	}
-    WRITECSR(sc, R_SND_DATA_COMP_MODE, M_MODE_ENABLE);
+
+    if ( BCM571X_FAMILY_DEVICE(sc->device) )
+    {
+        WRITECSR(sc, R_SND_DATA_COMP_MODE, M_MODE_ENABLE | 0x8);
+    }
+    else
+    {
+        WRITECSR(sc, R_SND_DATA_COMP_MODE, M_MODE_ENABLE);
+    }
+
     WRITECSR(sc, R_SND_BD_COMP_MODE, M_MODE_ENABLE | M_MODE_ATTNENABLE);
 
     /* Enable initiator functional blocks (83-86) */
@@ -2006,7 +2171,7 @@ t3_initlink(t3_ether_t *sc)
     if (1)   /* XXX Support only autonegotiation for now */
 	mii_autonegotiate(sc);
     else
-	mii_set_speed(sc, ETHER_SPEED_10HDX);
+	mii_set_speed(sc, ETHER_SPEED_100HDX);
 
     mii_enable_interrupts(sc);
 
@@ -2060,6 +2225,11 @@ t3_hwinit(t3_ether_t *sc)
 	t3_init_coalescing(sc);
 	t3_init_dma(sc);
 	t3_init_enable(sc);
+ 
+    if ( 1 )
+    {
+
+
 #if T3_DEBUG
 	dumpcsrs(sc, "end init");
 #else
@@ -2088,7 +2258,10 @@ t3_hwinit(t3_ether_t *sc)
 	(void)eeprom_dump_range;
 #endif
 
+
 	t3_initlink(sc);
+
+    }
 
 	sc->state = eth_state_off;
 	}
@@ -2101,7 +2274,9 @@ t3_hwshutdown(t3_ether_t *sc)
     t3_clear(sc, R_RX_MODE, M_MODE_ENABLE);
     t3_clear(sc, R_RCV_BD_INIT_MODE, M_MODE_ENABLE);
     t3_clear(sc, R_RCV_LIST_MODE, M_MODE_ENABLE);
-    if (sc->device != K_PCI_ID_BCM5705) {
+    if ( (sc->device != K_PCI_ID_BCM5705) &&
+         !BCM571X_FAMILY_DEVICE(sc->device) )
+    {
 	t3_clear(sc, R_RCV_LIST_SEL_MODE, M_MODE_ENABLE);
 	}
     t3_clear(sc, R_RCV_DATA_INIT_MODE, M_MODE_ENABLE);
@@ -2118,11 +2293,14 @@ t3_hwshutdown(t3_ether_t *sc)
 #ifndef BCM47XX  /* XXX bus error on 5703 */
     t3_clear(sc, R_SND_DATA_COMP_MODE, M_MODE_ENABLE);
 #endif
-    if (sc->device != K_PCI_ID_BCM5705) {
+    if ( (sc->device != K_PCI_ID_BCM5705) 
+        && !BCM571X_FAMILY_DEVICE(sc->device))
+    {
 #ifndef BCM47XX  /* XXX bus error on 5703 */
-	t3_clear(sc, R_DMA_COMP_MODE, M_MODE_ENABLE);
+        t3_clear(sc, R_DMA_COMP_MODE, M_MODE_ENABLE);
 #endif
 	}
+
     t3_clear(sc, R_SND_BD_COMP_MODE, M_MODE_ENABLE);
     t3_clear(sc, R_TX_MODE, M_MODE_ENABLE);
 
@@ -2170,11 +2348,11 @@ t3_isr(void *arg)
 
 	if (status->index[RI(1)].send_c != sc->txc_1_index) {
 	    handled = 1;
-	    if (IPOLL) sc->tx_interrupts++;  
+    if (IPOLL) sc->tx_interrupts++;  
 	    t3_proctxring(sc);
 	    }
 
-	if ((status->status & M_STATUS_LINKCHNG) != 0) {
+	if ((mac_status & M_EVT_LINKCHNG) != 0) {
 	    handled = 1;
 #if T3_AUTOPOLL
 	    WRITECSR(sc, R_MAC_STATUS, M_LINKCHNG_CLR);
@@ -2371,11 +2549,11 @@ t3_ether_attach(cfe_driver_t *drv, pcitag_t tag, uint8_t hwaddr[])
 
     /* (Some?) 5700s report the 5701 device code */
     sc->asic_revision = G_MHC_ASICREV(pci_conf_read(tag, R_MISC_HOST_CTRL));
-    if (sc->device == K_PCI_ID_BCM5701
-	&& (sc->asic_revision & 0xF000) == 0x7000)
+    if (( sc->device == K_PCI_ID_BCM5701) 
+        && (sc->asic_revision & 0xF000) == 0x7000 )
 	sc->device = K_PCI_ID_BCM5700;
 
-    sc->status =
+    sc->status = 
 	(t3_status_t *) CACHE_DMA_SHARED(dma_alloc(sizeof(t3_status_t), CACHE_ALIGN));
     if (sc->status == NULL) {
 	t3_delete_sc(sc);
@@ -2389,9 +2567,17 @@ t3_ether_attach(cfe_driver_t *drv, pcitag_t tag, uint8_t hwaddr[])
 	}
 
     if (sc->device == K_PCI_ID_BCM5705)
-	sc->rxr_entries = RXR_RING_ENTRIES_05;
+    {
+        sc->rxr_entries = RXR_RING_ENTRIES_05;
+    }
+    else if ( BCM571X_FAMILY_DEVICE(sc->device) )
+    {
+        sc->rxr_entries = RXR_RING_ENTRIES_BCM571X_FAMILY;
+    }
     else
-	sc->rxr_entries = RXR_RING_ENTRIES;
+    {
+        sc->rxr_entries = RXR_RING_ENTRIES;
+    }
 
     sc->rxp_std =
         (t3_rcv_bd_t *) dma_alloc(RXP_STD_ENTRIES*RCV_BD_SIZE, CACHE_ALIGN);
@@ -2444,6 +2630,8 @@ t3_ether_attach(cfe_driver_t *drv, pcitag_t tag, uint8_t hwaddr[])
 	devname = "BCM5704C"; break;
     case K_PCI_ID_BCM5705:
 	devname = "BCM5705"; break;
+    case K_PCI_ID_BCM5780:
+	devname = "BCM5780"; break;
     default:
 	devname = "BCM570x"; break;
 	}
@@ -2491,6 +2679,7 @@ t3_ether_probe(cfe_driver_t *drv,
 		case K_PCI_ID_BCM5703b:
 		case K_PCI_ID_BCM5704C:
 		case K_PCI_ID_BCM5705:
+        case K_PCI_ID_BCM5780:
 		    t3_ether_attach(drv, tag, hwaddr);
 		    enet_incr_hwaddr(hwaddr, 1);
 		    break;
@@ -2717,3 +2906,17 @@ t3_ether_reset(void *softc)
 
     sc->state = eth_state_uninit;
 }
+
+
+uint32_t l_phys_read32(uint32_t addr )
+{
+    //printf("rd:%08X\n", addr);
+    return( phys_read32( addr ) );
+} 
+
+void l_phys_write32(uint32_t addr, uint32_t val)
+{
+    //printf("wr:%08X %08X\n ", addr, val);
+    phys_write32( addr, val );
+}
+

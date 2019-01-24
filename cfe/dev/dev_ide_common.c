@@ -61,19 +61,20 @@
 #define DISK_SLAVE	1
 
 #define IDE_WRITEREG8(ide,reg,val)     IDEDISP_WRITEREG8(ide->idecommon_dispatch,reg,val)
-#define IDE_WRITEREG16(ide,reg,val)    IDEDISP_WRITEREG8(ide->idecommon_dispatch,reg,val)
+#define IDE_WRITEREG16(ide,reg,val)    IDEDISP_WRITEREG16(ide->idecommon_dispatch,reg,val)
 #define IDE_WRITEBUF(ide,reg,buf,len)  IDEDISP_WRITEBUF(ide->idecommon_dispatch,reg,buf,len)
 #define IDE_READREG8(ide,reg)          IDEDISP_READREG8(ide->idecommon_dispatch,reg)
 #define IDE_READREG16(ide,reg)         IDEDISP_READREG16(ide->idecommon_dispatch,reg)
 #define IDE_READBUF(ide,reg,buf,len)   IDEDISP_READBUF(ide->idecommon_dispatch,reg,buf,len)
 
-#define GETWORD_LE(buf,wordidx) (((unsigned int) (buf)[(wordidx)*2]) + \
-             (((unsigned int) (buf)[(wordidx)*2+1]) << 8))
+#define GETWORD_LE(buf,wordidx) (((unsigned int) (buf)[wordidx]) + \
+             (((unsigned int) (buf)[wordidx+1]) << 8))
 
 #define _IDE_DEBUG_
 
 
 static void idecommon_testdrq(idecommon_t *ide);
+static int idecommon_spinup(idecommon_t *ide );
 
 /*  *********************************************************************
     *  idecommon_sectorshift(size)
@@ -377,8 +378,59 @@ int idecommon_identify(idecommon_t *ide,uint8_t *buffer)
 
     idecommon_testdrq(ide);
 
+    xprintf("Identify Success\n ");
+
     return 0;
 }
+
+
+/*  *********************************************************************
+    *  idecommon_spinup(ide,buffer)
+    *  
+    *  Execute a spinup command to the disk.
+    *  
+    *  Input parameters: 
+    *  	   ide - IDE interface
+    *  	   buffer - pointer to 512 byte buffer
+    *  	   
+    *  Return value:
+    *  	   0 if ok
+    *  	   else error code
+    ********************************************************************* */
+
+int idecommon_spinup(idecommon_t *ide )
+{
+
+    /* Device Select Protocol; see ATAPI-4 sect 9.6 */
+      
+    if (idecommon_waitnotbusy(ide) < 0) return -1;
+    IDE_WRITEREG8(ide,IDE_REG_DRVHD,(ide->idecommon_unit<<4)|0);
+    if (idecommon_waitnotbusy(ide) < 0) return -1;
+
+    /* Set device registers */
+
+    IDE_WRITEREG8(ide,IDE_REG_CYLLSB,0);
+    IDE_WRITEREG8(ide,IDE_REG_CYLMSB,0);
+    IDE_WRITEREG8(ide,IDE_REG_SECNUM,1);
+    IDE_WRITEREG8(ide,IDE_REG_SECCNT,1);
+
+    idecommon_testdrq(ide);
+
+    /* Issue command, then read ALT STATUS (9.7) */
+	IDE_WRITEREG8(ide,IDE_REG_COMMAND,IDE_CMD_SET_FEATURE);
+    IDE_WRITEREG8(ide,IDE_REG_FEATURE,IDE_SUB_FEAT_DEV_SPINUP); 
+
+    IDE_READREG8(ide,IDE_REG_ALTSTAT); 
+    idecommon_waitbusy(ide);		/* should not be necessary */
+
+    /* Wait BSY=0 && DRQ=1 see sect 9.7 */
+    if (idecommon_wait_drq(ide) < 0) return -1;
+
+    idecommon_testdrq(ide);
+
+    return 0;
+}
+
 
 /*  *********************************************************************
     *  idecommon_packet(ide,packet,pktlen,databuf,datalen)
@@ -821,6 +873,13 @@ int idecommon_devprobe(idecommon_t *softc,int noisy)
     res = idecommon_reset(softc);
     if (res < 0) return -1;
 
+
+    /*
+     * Attempt spinup( required for SATA )
+     */
+    res = idecommon_spinup(softc);
+    
+
     /*
      * Run diagnostic to get the signature.  
      */
@@ -844,11 +903,10 @@ int idecommon_devprobe(idecommon_t *softc,int noisy)
 	}
 
     /*
-     * Do tha appropriate IDENTIFY command to get device information
+     * Do the appropriate IDENTIFY command to get device information
      */
-
     softc->idecommon_atapi = atapi;
-    res = idecommon_identify(softc,buffer);
+    res = idecommon_identify(softc,&buffer[0]);
     if (res < 0) return -1;
 
     /*
@@ -860,7 +918,7 @@ int idecommon_devprobe(idecommon_t *softc,int noisy)
 	typename = "Disk";
 	}
     else {
-	w = GETWORD_LE(buffer,0);
+	w = GETWORD_LE(&buffer[0],0);
 	switch ((w >> 8) & 31) {
 	    case 5:		/* CD-ROM */
 		devtype = IDE_DEVTYPE_CDROM;
@@ -877,9 +935,9 @@ int idecommon_devprobe(idecommon_t *softc,int noisy)
      * Say nice things about the device.
      */
 
-    idecommon_getmodel(buffer,(char *)model);
+    noisy = 1;
+    idecommon_getmodel(&buffer[0], (char *)model);
     if (noisy) xprintf("%s, \"%s\"",typename,model);
-    
 
 #ifdef _IDE_DEBUG_
     if (!softc->idecommon_atapi) {
@@ -890,6 +948,7 @@ int idecommon_devprobe(idecommon_t *softc,int noisy)
     else {
 	ttlsect = 0;
 	}
+
 #endif
     if (noisy) xprintf("\n");
 

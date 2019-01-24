@@ -1,47 +1,47 @@
 /*  *********************************************************************
     *  BCM1280/BCM1400 Board Support Package
-    *  
+    *
     *  SCD Constants and Macros                     File: bcm1480_scd.h
-    *  
+    *
     *  This module contains constants and macros useful for
     *  manipulating the System Control and Debug module.
-    *  
+    *
     *  BCM1400 specification level: 1X55_1X80-UM100-R (12/18/03)
-    *  
-    *********************************************************************  
+    *
+    *********************************************************************
     *
     *  Copyright 2000,2001,2002,2003,2004,2005
     *  Broadcom Corporation. All rights reserved.
-    *  
-    *  This software is furnished under license and may be used and 
-    *  copied only in accordance with the following terms and 
-    *  conditions.  Subject to these conditions, you may download, 
-    *  copy, install, use, modify and distribute modified or unmodified 
-    *  copies of this software in source and/or binary form.  No title 
+    *
+    *  This software is furnished under license and may be used and
+    *  copied only in accordance with the following terms and
+    *  conditions.  Subject to these conditions, you may download,
+    *  copy, install, use, modify and distribute modified or unmodified
+    *  copies of this software in source and/or binary form.  No title
     *  or ownership is transferred hereby.
-    *  
-    *  1) Any source code used, modified or distributed must reproduce 
-    *     and retain this copyright notice and list of conditions 
+    *
+    *  1) Any source code used, modified or distributed must reproduce
+    *     and retain this copyright notice and list of conditions
     *     as they appear in the source file.
-    *  
-    *  2) No right is granted to use any trade name, trademark, or 
-    *     logo of Broadcom Corporation.  The "Broadcom Corporation" 
-    *     name may not be used to endorse or promote products derived 
-    *     from this software without the prior written permission of 
+    *
+    *  2) No right is granted to use any trade name, trademark, or
+    *     logo of Broadcom Corporation.  The "Broadcom Corporation"
+    *     name may not be used to endorse or promote products derived
+    *     from this software without the prior written permission of
     *     Broadcom Corporation.
-    *  
+    *
     *  3) THIS SOFTWARE IS PROVIDED "AS-IS" AND ANY EXPRESS OR
     *     IMPLIED WARRANTIES, INCLUDING BUT NOT LIMITED TO, ANY IMPLIED
-    *     WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-    *     PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED. IN NO EVENT 
-    *     SHALL BROADCOM BE LIABLE FOR ANY DAMAGES WHATSOEVER, AND IN 
+    *     WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+    *     PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED. IN NO EVENT
+    *     SHALL BROADCOM BE LIABLE FOR ANY DAMAGES WHATSOEVER, AND IN
     *     PARTICULAR, BROADCOM SHALL NOT BE LIABLE FOR DIRECT, INDIRECT,
-    *     INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+    *     INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
     *     (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
     *     GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
-    *     BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY 
-    *     OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR 
-    *     TORT (INCLUDING NEGLIGENCE OR OTHERWISE), EVEN IF ADVISED OF 
+    *     BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+    *     OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+    *     TORT (INCLUDING NEGLIGENCE OR OTHERWISE), EVEN IF ADVISED OF
     *     THE POSSIBILITY OF SUCH DAMAGE.
     ********************************************************************* */
 
@@ -58,22 +58,22 @@
 
 /*  *********************************************************************
     *  Some general notes:
-    *  
+    *
     *  This file is basically a "what's new" header file.  Since the
     *  BCM1250 and the new BCM1480 (and derivatives) share many common
     *  features, this file contains only what's new or changed from
     *  the 1250.  (above, you can see that we include the 1250 symbols
-    *  to get the base functionality).  
+    *  to get the base functionality).
     *
-    *  In software, be sure to use the correct symbols, particularly 
+    *  In software, be sure to use the correct symbols, particularly
     *  for blocks that are different between the two chip families.
     *  All BCM1480-specific symbols have _BCM1480_ in their names,
-    *  and all BCM1250-specific and "base" functions that are common in 
+    *  and all BCM1250-specific and "base" functions that are common in
     *  both chips have no special names (this is for compatibility with
     *  older include files).  Therefore, if you're working with the
     *  SCD, which is very different on each chip, A_SCD_xxx implies
     *  the BCM1250 version and A_BCM1480_SCD_xxx implies the BCM1480
-    *  version.  
+    *  version.
     ********************************************************************* */
 
 /*  *********************************************************************
@@ -87,7 +87,7 @@
  */
 
 /*
- * New part definitions 
+ * New part definitions
  */
 
 #define K_SYS_PART_BCM1480          0x1406
@@ -104,7 +104,7 @@
 /*
  * System Configuration Register (Table 15)
  * Register: SCD_SYSTEM_CFG
- * Entire register is different from 1250, all new constants below 
+ * Entire register is different from 1250, all new constants below
  */
 
 #define M_BCM1480_SYS_RESERVED0             _SB_MAKEMASK1(0)
@@ -197,7 +197,7 @@
 /*
  * Watchdog Timer Initial Count Registers (Table 23)
  * Registers: SCD_WDOG_INIT_CNT_x
- * 
+ *
  * The watchdogs are almost the same as the 1250, except
  * the configuration register has more bits to control the
  * other CPUs.
@@ -238,7 +238,7 @@
 /*
  * ZBbus Count Register (Table 29)
  * Register: ZBBUS_CYCLE_COUNT
- * 
+ *
  * Same as BCM1250
  */
 
@@ -254,58 +254,42 @@
  * System Performance Counter Configuration Register (Table 31)
  * Register: PERF_CNT_CFG_0
  *
- * Since the clear/enable bits are moved compared to the
- * 1250 and there are more fields, this register will be BCM1480 specific.
+ * SPC_CFG_SRC[0-3] is the same as the 1250.
+ * SPC_CFG_SRC[4-7] only exist on the 1480
+ * The clear/enable bits are in different locations on the 1250 and 1480.
  */
 
-#define S_BCM1480_SPC_CFG_SRC0              0
-#define M_BCM1480_SPC_CFG_SRC0              _SB_MAKEMASK(8,S_BCM1480_SPC_CFG_SRC0)
-#define V_BCM1480_SPC_CFG_SRC0(x)           _SB_MAKEVALUE(x,S_BCM1480_SPC_CFG_SRC0)
-#define G_BCM1480_SPC_CFG_SRC0(x)           _SB_GETVALUE(x,S_BCM1480_SPC_CFG_SRC0,M_BCM1480_SPC_CFG_SRC0)
+#define S_SPC_CFG_SRC4              32
+#define M_SPC_CFG_SRC4              _SB_MAKEMASK(8,S_SPC_CFG_SRC4)
+#define V_SPC_CFG_SRC4(x)           _SB_MAKEVALUE(x,S_SPC_CFG_SRC4)
+#define G_SPC_CFG_SRC4(x)           _SB_GETVALUE(x,S_SPC_CFG_SRC4,M_SPC_CFG_SRC4)
 
-#define S_BCM1480_SPC_CFG_SRC1              8
-#define M_BCM1480_SPC_CFG_SRC1              _SB_MAKEMASK(8,S_BCM1480_SPC_CFG_SRC1)
-#define V_BCM1480_SPC_CFG_SRC1(x)           _SB_MAKEVALUE(x,S_BCM1480_SPC_CFG_SRC1)
-#define G_BCM1480_SPC_CFG_SRC1(x)           _SB_GETVALUE(x,S_BCM1480_SPC_CFG_SRC1,M_BCM1480_SPC_CFG_SRC1)
+#define S_SPC_CFG_SRC5              40
+#define M_SPC_CFG_SRC5              _SB_MAKEMASK(8,S_SPC_CFG_SRC5)
+#define V_SPC_CFG_SRC5(x)           _SB_MAKEVALUE(x,S_SPC_CFG_SRC5)
+#define G_SPC_CFG_SRC5(x)           _SB_GETVALUE(x,S_SPC_CFG_SRC5,M_SPC_CFG_SRC5)
 
-#define S_BCM1480_SPC_CFG_SRC2              16
-#define M_BCM1480_SPC_CFG_SRC2              _SB_MAKEMASK(8,S_BCM1480_SPC_CFG_SRC2)
-#define V_BCM1480_SPC_CFG_SRC2(x)           _SB_MAKEVALUE(x,S_BCM1480_SPC_CFG_SRC2)
-#define G_BCM1480_SPC_CFG_SRC2(x)           _SB_GETVALUE(x,S_BCM1480_SPC_CFG_SRC2,M_BCM1480_SPC_CFG_SRC2)
+#define S_SPC_CFG_SRC6              48
+#define M_SPC_CFG_SRC6              _SB_MAKEMASK(8,S_SPC_CFG_SRC6)
+#define V_SPC_CFG_SRC6(x)           _SB_MAKEVALUE(x,S_SPC_CFG_SRC6)
+#define G_SPC_CFG_SRC6(x)           _SB_GETVALUE(x,S_SPC_CFG_SRC6,M_SPC_CFG_SRC6)
 
-#define S_BCM1480_SPC_CFG_SRC3              24
-#define M_BCM1480_SPC_CFG_SRC3              _SB_MAKEMASK(8,S_BCM1480_SPC_CFG_SRC3)
-#define V_BCM1480_SPC_CFG_SRC3(x)           _SB_MAKEVALUE(x,S_BCM1480_SPC_CFG_SRC3)
-#define G_BCM1480_SPC_CFG_SRC3(x)           _SB_GETVALUE(x,S_BCM1480_SPC_CFG_SRC3,M_BCM1480_SPC_CFG_SRC3)
-
-#define S_BCM1480_SPC_CFG_SRC4              32
-#define M_BCM1480_SPC_CFG_SRC4              _SB_MAKEMASK(8,S_BCM1480_SPC_CFG_SRC4)
-#define V_BCM1480_SPC_CFG_SRC4(x)           _SB_MAKEVALUE(x,S_BCM1480_SPC_CFG_SRC4)
-#define G_BCM1480_SPC_CFG_SRC4(x)           _SB_GETVALUE(x,S_BCM1480_SPC_CFG_SRC4,M_BCM1480_SPC_CFG_SRC4)
-
-#define S_BCM1480_SPC_CFG_SRC5              40
-#define M_BCM1480_SPC_CFG_SRC5              _SB_MAKEMASK(8,S_BCM1480_SPC_CFG_SRC5)
-#define V_BCM1480_SPC_CFG_SRC5(x)           _SB_MAKEVALUE(x,S_BCM1480_SPC_CFG_SRC5)
-#define G_BCM1480_SPC_CFG_SRC5(x)           _SB_GETVALUE(x,S_BCM1480_SPC_CFG_SRC5,M_BCM1480_SPC_CFG_SRC5)
-
-#define S_BCM1480_SPC_CFG_SRC6              48
-#define M_BCM1480_SPC_CFG_SRC6              _SB_MAKEMASK(8,S_BCM1480_SPC_CFG_SRC6)
-#define V_BCM1480_SPC_CFG_SRC6(x)           _SB_MAKEVALUE(x,S_BCM1480_SPC_CFG_SRC6)
-#define G_BCM1480_SPC_CFG_SRC6(x)           _SB_GETVALUE(x,S_BCM1480_SPC_CFG_SRC6,M_BCM1480_SPC_CFG_SRC6)
-
-#define S_BCM1480_SPC_CFG_SRC7              56
-#define M_BCM1480_SPC_CFG_SRC7              _SB_MAKEMASK(8,S_BCM1480_SPC_CFG_SRC7)
-#define V_BCM1480_SPC_CFG_SRC7(x)           _SB_MAKEVALUE(x,S_BCM1480_SPC_CFG_SRC7)
-#define G_BCM1480_SPC_CFG_SRC7(x)           _SB_GETVALUE(x,S_BCM1480_SPC_CFG_SRC7,M_BCM1480_SPC_CFG_SRC7)
+#define S_SPC_CFG_SRC7              56
+#define M_SPC_CFG_SRC7              _SB_MAKEMASK(8,S_SPC_CFG_SRC7)
+#define V_SPC_CFG_SRC7(x)           _SB_MAKEVALUE(x,S_SPC_CFG_SRC7)
+#define G_SPC_CFG_SRC7(x)           _SB_GETVALUE(x,S_SPC_CFG_SRC7,M_SPC_CFG_SRC7)
 
 /*
  * System Performance Counter Control Register (Table 32)
  * Register: PERF_CNT_CFG_1
  * BCM1480 specific
  */
-
-#define M_BCM1480_SPC_CFG_CLEAR             _SB_MAKEMASK1(0)
-#define M_BCM1480_SPC_CFG_ENABLE            _SB_MAKEMASK1(1)
+#define M_BCM1480_SPC_CFG_CLEAR     _SB_MAKEMASK1(0)
+#define M_BCM1480_SPC_CFG_ENABLE    _SB_MAKEMASK1(1)
+#if SIBYTE_HDR_FEATURE_CHIP(1480)
+#define M_SPC_CFG_CLEAR			M_BCM1480_SPC_CFG_CLEAR
+#define M_SPC_CFG_ENABLE		M_BCM1480_SPC_CFG_ENABLE
+#endif
 
 /*
  * System Performance Counters (Table 33)
@@ -350,7 +334,7 @@
  * Address Trap Registers
  *
  * Register layout same as BCM1250, almost.  The bus agents
- * are different, and the address trap configuration bits are 
+ * are different, and the address trap configuration bits are
  * slightly different.
  */
 
@@ -422,19 +406,9 @@
  * Trace Control Register (Table 49)
  * Register: TRACE_CFG
  *
- * Bits 0..8 are the same as the BCM1250, rest are different.
- * Entire register is redefined below.
+ * BCM1480 changes to this register (other than location of the CUR_ADDR field)
+ * are defined below.
  */
-
-#define M_BCM1480_SCD_TRACE_CFG_RESET       _SB_MAKEMASK1(0)
-#define M_BCM1480_SCD_TRACE_CFG_START_READ  _SB_MAKEMASK1(1)
-#define M_BCM1480_SCD_TRACE_CFG_START       _SB_MAKEMASK1(2)
-#define M_BCM1480_SCD_TRACE_CFG_STOP        _SB_MAKEMASK1(3)
-#define M_BCM1480_SCD_TRACE_CFG_FREEZE      _SB_MAKEMASK1(4)
-#define M_BCM1480_SCD_TRACE_CFG_FREEZE_FULL _SB_MAKEMASK1(5)
-#define M_BCM1480_SCD_TRACE_CFG_DEBUG_FULL  _SB_MAKEMASK1(6)
-#define M_BCM1480_SCD_TRACE_CFG_FULL        _SB_MAKEMASK1(7)
-#define M_BCM1480_SCD_TRACE_CFG_FORCE_CNT   _SB_MAKEMASK1(8)
 
 #define S_BCM1480_SCD_TRACE_CFG_MODE        16
 #define M_BCM1480_SCD_TRACE_CFG_MODE        _SB_MAKEMASK(2,S_BCM1480_SCD_TRACE_CFG_MODE)
@@ -444,10 +418,5 @@
 #define K_BCM1480_SCD_TRACE_CFG_MODE_BLOCKERS	0
 #define K_BCM1480_SCD_TRACE_CFG_MODE_BYTEEN_INT	1
 #define K_BCM1480_SCD_TRACE_CFG_MODE_FLOW_ID	2
-
-#define S_BCM1480_SCD_TRACE_CFG_CUR_ADDR    24
-#define M_BCM1480_SCD_TRACE_CFG_CUR_ADDR    _SB_MAKEMASK(8,S_BCM1480_SCD_TRACE_CFG_CUR_ADDR)
-#define V_BCM1480_SCD_TRACE_CFG_CUR_ADDR(x) _SB_MAKEVALUE(x,S_BCM1480_SCD_TRACE_CFG_CUR_ADDR)
-#define G_BCM1480_SCD_TRACE_CFG_CUR_ADDR(x) _SB_GETVALUE(x,S_BCM1480_SCD_TRACE_CFG_CUR_ADDR,M_BCM1480_SCD_TRACE_CFG_CUR_ADDR)
 
 #endif /* _BCM1480_SCD_H */

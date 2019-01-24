@@ -1,47 +1,47 @@
 /*  *********************************************************************
     *  BCM1280/BCM1480 Board Support Package
-    *  
-    *  High-Speed Port Block constants           File: bcm1480_hsp.h       
-    *  
+    *
+    *  High-Speed Port Block constants           File: bcm1480_hsp.h
+    *
     *  This module contains constants and macros useful for
     *  programming the the high-speed (HT/SPI-4) ports.
-    *  
+    *
     *  BCM1400 specification level:  1X55_1X80-UM100-R (12/18/03)
-    *  
-    *********************************************************************  
+    *
+    *********************************************************************
     *
     *  Copyright 2000,2001,2002,2003,2004
     *  Broadcom Corporation. All rights reserved.
-    *  
-    *  This software is furnished under license and may be used and 
-    *  copied only in accordance with the following terms and 
-    *  conditions.  Subject to these conditions, you may download, 
-    *  copy, install, use, modify and distribute modified or unmodified 
-    *  copies of this software in source and/or binary form.  No title 
+    *
+    *  This software is furnished under license and may be used and
+    *  copied only in accordance with the following terms and
+    *  conditions.  Subject to these conditions, you may download,
+    *  copy, install, use, modify and distribute modified or unmodified
+    *  copies of this software in source and/or binary form.  No title
     *  or ownership is transferred hereby.
-    *  
-    *  1) Any source code used, modified or distributed must reproduce 
-    *     and retain this copyright notice and list of conditions 
+    *
+    *  1) Any source code used, modified or distributed must reproduce
+    *     and retain this copyright notice and list of conditions
     *     as they appear in the source file.
-    *  
-    *  2) No right is granted to use any trade name, trademark, or 
-    *     logo of Broadcom Corporation.  The "Broadcom Corporation" 
-    *     name may not be used to endorse or promote products derived 
-    *     from this software without the prior written permission of 
+    *
+    *  2) No right is granted to use any trade name, trademark, or
+    *     logo of Broadcom Corporation.  The "Broadcom Corporation"
+    *     name may not be used to endorse or promote products derived
+    *     from this software without the prior written permission of
     *     Broadcom Corporation.
-    *  
+    *
     *  3) THIS SOFTWARE IS PROVIDED "AS-IS" AND ANY EXPRESS OR
     *     IMPLIED WARRANTIES, INCLUDING BUT NOT LIMITED TO, ANY IMPLIED
-    *     WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-    *     PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED. IN NO EVENT 
-    *     SHALL BROADCOM BE LIABLE FOR ANY DAMAGES WHATSOEVER, AND IN 
+    *     WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+    *     PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED. IN NO EVENT
+    *     SHALL BROADCOM BE LIABLE FOR ANY DAMAGES WHATSOEVER, AND IN
     *     PARTICULAR, BROADCOM SHALL NOT BE LIABLE FOR DIRECT, INDIRECT,
-    *     INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+    *     INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
     *     (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
     *     GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
-    *     BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY 
-    *     OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR 
-    *     TORT (INCLUDING NEGLIGENCE OR OTHERWISE), EVEN IF ADVISED OF 
+    *     BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+    *     OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+    *     TORT (INCLUDING NEGLIGENCE OR OTHERWISE), EVEN IF ADVISED OF
     *     THE POSSIBILITY OF SUCH DAMAGE.
     ********************************************************************* */
 
@@ -97,7 +97,7 @@
  * RX SPI-4 De-Skew Override Configuration Register (Table 335)
  */
 
-/* 
+/*
  * Note: these macros don't follow the usual convention, since the entire
  * thing is basically an array of 4-bit fields, we add the "bit" parameter to each.
  */
@@ -246,7 +246,7 @@
 #define G_BCM1480_HSP_RX_DIAG_ERR_CODE_2(x)  _SB_GETVALUE(x,S_BCM1480_HSP_RX_DIAG_ERR_CODE_2,M_BCM1480_HSP_RX_DIAG_ERR_CODE_2)
 
 
-/* 
+/*
  * RX Diagnostic Detail (Table 345)
  */
 
@@ -585,8 +585,8 @@
 #define V_BCM1480_HSP_TX_CRD_FLOOR(x)       _SB_MAKEVALUE(x,S_BCM1480_HSP_TX_CRD_FLOOR)
 #define G_BCM1480_HSP_TX_CRD_FLOOR(x)       _SB_GETVALUE(x,S_BCM1480_HSP_TX_CRD_FLOOR,M_BCM1480_HSP_TX_CRD_FLOOR)
 
-/* 
- * RX SPI4 Config Register 1 (Table 363) 
+/*
+ * RX SPI4 Config Register 1 (Table 363)
  */
 
 #define S_BCM1480_HSP_RX_CALENDAR_LEN           0
@@ -614,7 +614,7 @@
 #define V_BCM1480_HSP_RX_CALENDAR_X(c,x)    _SB_MAKEVALUE(x,S_BCM1480_HSP_RX_CALENDAR_X(c))
 #define G_BCM1480_HSP_RX_CALENDAR_X(c,x)    _SB_GETVALUE(x,S_BCM1480_HSP_RX_CALENDAR_X(c),M_BCM1480_HSP_RX_CALENDAR_X(c))
 
-/* 
+/*
  * RX SPI4 Watermark registers (Table 365)
  */
 
@@ -739,7 +739,7 @@
 #define G_BCM1480_HSP_RX_PC_DAT_PHITCNT(x)  _SB_GETVALUE(x,S_BCM1480_HSP_RX_PC_DAT_PHITCNT,M_BCM1480_HSP_RX_PC_DAT_PHITCNT)
 
 /*
- * TX HTCC Buffer Allocation Registers (Table 370) 
+ * TX HTCC Buffer Allocation Registers (Table 370)
  */
 
 #define S_BCM1480_HSP_TX_HTCC_PRB_PHITCNT          0
@@ -997,7 +997,7 @@
 
 /*
  * TX Testability (Table 378)
- * BROADCOM USE ONLY 
+ * BROADCOM USE ONLY
  */
 
 #define S_BCM1480_HSP_TXTST_CTL            0

@@ -28,6 +28,7 @@ endif
 # Uncomment to make things happy under the functional simulator.
 #
 #CFLAGS += -D_FUNCSIM_ -D_FASTEMUL_
+CFLAGS += -DSIBYTE_HDR_FEATURES="(SIBYTE_HDR_FMASK_1250_ALL|SIBYTE_HDR_FMASK_112x_ALL)"
 
 #
 # For now, we do the BCM11xx magic at compile time, not at run-time

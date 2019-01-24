@@ -1,49 +1,49 @@
 /*  *********************************************************************
     *  SB1250 Board Support Package
-    *  
+    *
     *  DMA definitions				File: sb1250_dma.h
-    *  
+    *
     *  This module contains constants and macros useful for
     *  programming the SB1250's DMA controllers, both the data mover
     *  and the Ethernet DMA.
-    *  
+    *
     *  SB1250 specification level:  User's manual 10/21/02
     *  BCM1280 specification level: User's manual 11/24/03
-    *  
-    *********************************************************************  
+    *
+    *********************************************************************
     *
     *  Copyright 2000,2001,2002,2003,2004
     *  Broadcom Corporation. All rights reserved.
-    *  
-    *  This software is furnished under license and may be used and 
-    *  copied only in accordance with the following terms and 
-    *  conditions.  Subject to these conditions, you may download, 
-    *  copy, install, use, modify and distribute modified or unmodified 
-    *  copies of this software in source and/or binary form.  No title 
+    *
+    *  This software is furnished under license and may be used and
+    *  copied only in accordance with the following terms and
+    *  conditions.  Subject to these conditions, you may download,
+    *  copy, install, use, modify and distribute modified or unmodified
+    *  copies of this software in source and/or binary form.  No title
     *  or ownership is transferred hereby.
-    *  
-    *  1) Any source code used, modified or distributed must reproduce 
-    *     and retain this copyright notice and list of conditions 
+    *
+    *  1) Any source code used, modified or distributed must reproduce
+    *     and retain this copyright notice and list of conditions
     *     as they appear in the source file.
-    *  
-    *  2) No right is granted to use any trade name, trademark, or 
-    *     logo of Broadcom Corporation.  The "Broadcom Corporation" 
-    *     name may not be used to endorse or promote products derived 
-    *     from this software without the prior written permission of 
+    *
+    *  2) No right is granted to use any trade name, trademark, or
+    *     logo of Broadcom Corporation.  The "Broadcom Corporation"
+    *     name may not be used to endorse or promote products derived
+    *     from this software without the prior written permission of
     *     Broadcom Corporation.
-    *  
+    *
     *  3) THIS SOFTWARE IS PROVIDED "AS-IS" AND ANY EXPRESS OR
     *     IMPLIED WARRANTIES, INCLUDING BUT NOT LIMITED TO, ANY IMPLIED
-    *     WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-    *     PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED. IN NO EVENT 
-    *     SHALL BROADCOM BE LIABLE FOR ANY DAMAGES WHATSOEVER, AND IN 
+    *     WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+    *     PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED. IN NO EVENT
+    *     SHALL BROADCOM BE LIABLE FOR ANY DAMAGES WHATSOEVER, AND IN
     *     PARTICULAR, BROADCOM SHALL NOT BE LIABLE FOR DIRECT, INDIRECT,
-    *     INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+    *     INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
     *     (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
     *     GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
-    *     BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY 
-    *     OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR 
-    *     TORT (INCLUDING NEGLIGENCE OR OTHERWISE), EVEN IF ADVISED OF 
+    *     BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+    *     OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+    *     TORT (INCLUDING NEGLIGENCE OR OTHERWISE), EVEN IF ADVISED OF
     *     THE POSSIBILITY OF SUCH DAMAGE.
     ********************************************************************* */
 
@@ -58,9 +58,9 @@
     *  DMA Registers
     ********************************************************************* */
 
-/* 
+/*
  * Ethernet and Serial DMA Configuration Register 0  (Table 7-4)
- * Registers: DMA_CONFIG0_MAC_x_RX_CH_0 
+ * Registers: DMA_CONFIG0_MAC_x_RX_CH_0
  * Registers: DMA_CONFIG0_MAC_x_TX_CH_0
  * Registers: DMA_CONFIG0_SER_x_RX
  * Registers: DMA_CONFIG0_SER_x_TX
@@ -113,7 +113,7 @@
 
 /*
  * Ethernet and Serial DMA Configuration Register 1 (Table 7-5)
- * Registers: DMA_CONFIG1_MAC_x_RX_CH_0 
+ * Registers: DMA_CONFIG1_MAC_x_RX_CH_0
  * Registers: DMA_CONFIG1_DMA_x_TX_CH_0
  * Registers: DMA_CONFIG1_SER_x_RX
  * Registers: DMA_CONFIG1_SER_x_TX
@@ -167,11 +167,11 @@
 /*
  * DMA Descriptor Count Registers (Table 7-8)
  */
- 
+
 /* No bitfields */
 
 
-/* 
+/*
  * Current Descriptor Address Register (Table 7-11)
  */
 
@@ -290,7 +290,7 @@
 #define V_DMA_DSCRB_STATUS(x)       _SB_MAKEVALUE(x,S_DMA_DSCRB_STATUS)
 #define G_DMA_DSCRB_STATUS(x)       _SB_GETVALUE(x,S_DMA_DSCRB_STATUS,M_DMA_DSCRB_STATUS)
 
-/* 
+/*
  * Ethernet Descriptor Status Bits (Table 7-15)
  */
 
@@ -340,7 +340,7 @@
 
 #define M_DMA_ETHTX_SOP	    	    _SB_MAKEMASK1(63)
 
-/* 
+/*
  * Ethernet Transmit Options (Table 7-17)
  */
 
@@ -393,7 +393,7 @@
     *  Data Mover Registers
     ********************************************************************* */
 
-/* 
+/*
  * Data Mover Descriptor Base Address Register (Table 7-22)
  * Register: DM_DSCR_BASE_0
  * Register: DM_DSCR_BASE_1
@@ -430,7 +430,7 @@
 #define M_DM_DSCR_BASE_ABORT        _SB_MAKEMASK1(62)
 #define M_DM_DSCR_BASE_ENABL        _SB_MAKEMASK1(63)
 
-/* 
+/*
  * Data Mover Descriptor Count Register (Table 7-25)
  */
 

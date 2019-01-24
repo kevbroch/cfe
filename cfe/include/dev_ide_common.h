@@ -52,6 +52,7 @@
 
 #define IDE_REG_DATA	0x0
 #define IDE_REG_ERROR	0x1
+#define IDE_REG_FEATURE	0x1
 #define IDE_REG_PRECOMP	0x1
 #define IDE_REG_SECCNT	0x2
 #define IDE_REG_IR	0x2	/* ATAPI */
@@ -108,6 +109,9 @@
 #define IDE_CMD_ATAPI_PACKET	0xA0
 #define IDE_CMD_ATAPI_IDENTIFY	0xA1
 #define IDE_CMD_ATAPI_SERVICE	0xA2
+#define IDE_CMD_SET_FEATURE     0xEF
+
+#define IDE_SUB_FEAT_DEV_SPINUP 0x07
 
 #define IDE_DOR_SRST		0x04
 #define IDE_DOR_IEN		0x02

@@ -160,7 +160,7 @@ static int ui_cmd_config1250(ui_cmdline_t *cmd,int argc,char *argv[])
 	    return res;
 	    }
 
-	base = (uint8_t *)(la->la_address);
+	base = HSADDR2PTR(la->la_address);
 	len = res;
 	}
     else {
@@ -180,7 +180,7 @@ static int ui_cmd_config1250(ui_cmdline_t *cmd,int argc,char *argv[])
 	return fh;
 	}
 
-    res = cfe_write(fh, base, len);
+    res = cfe_write(fh, PTR2HSADDR((unsigned char *)base), len);
     if (res != 0) {
 	xprintf("Could not download device: %s\n", cfe_errortext(res));
 	}

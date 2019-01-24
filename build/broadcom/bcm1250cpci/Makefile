@@ -33,7 +33,7 @@ endif
 # 500Khz).  Remove this before using on real hardware.
 #
 # CFLAGS += -D_FASTEMUL_ -D_FUNCSIM_
-
+CFLAGS += -DSIBYTE_HDR_FEATURES="(SIBYTE_HDR_FMASK_1250_ALL|SIBYTE_HDR_FMASK_112x_ALL)"
 
 ALL : cfe cfe.flash
 	echo done

@@ -123,14 +123,14 @@ static int console_xprint(const char *str)
     /* Convert CR to CRLF as we write things out */
 
     while ((p = strchr(str,'\n'))) {
-	console_write((char *) str,p-str);
-	console_write("\r\n",2);
+	console_write((unsigned char *) str,p-str);
+	console_write((unsigned char *)"\r\n",2);
 	count += (p-str);
 	str = p + 1;
 	}
 
     len = strlen(str);
-    console_write((char *) str, len);
+    console_write((unsigned char *) str, len);
     count += len;
 
     return count;

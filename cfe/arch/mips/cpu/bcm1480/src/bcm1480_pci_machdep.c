@@ -1029,6 +1029,10 @@ extern void as90l10208_setup(pcitag_t tag, pci_flags_t flags);
 extern void ht7520apic_preset(pcitag_t tag);
 extern void ht7520apic_setup(pcitag_t tag);
 
+#define	PCI_VENDOR_SERVERWORKS		0x1166		/* ServerWorks */
+#define	PCI_PRODUCT_SW_BCM5780_HOST    	0x0205		/* BCM5780 HT1000 Legacy Host Bridge */
+extern void bcm5780devs_enable_preset(pcitag_t tag);
+
 
 /* Dispatch functions for device pre- and post-configuration hooks. */
 
@@ -1049,6 +1053,7 @@ pci_device_preset (pcitag_t tag)
 
     skip = 0;
     id = pci_conf_read(tag, PCI_ID_REG);
+
     switch (PCI_VENDOR(id)) {
 	case PCI_VENDOR_SIBYTE:
 	    /* Check for a host bridge seen internally, in which case
@@ -1061,6 +1066,12 @@ pci_device_preset (pcitag_t tag)
 	    if (PCI_PRODUCT(id) == PCI_PRODUCT_PLX_HT7520_APIC)
 		ht7520apic_preset (tag);
 	    break;
+	case PCI_VENDOR_SERVERWORKS:
+	    if (PCI_PRODUCT(id) == PCI_PRODUCT_SW_BCM5780_HOST) {
+		bcm5780devs_enable_preset (tag); 
+		}
+	    break;
+
 	default:
 	    break;
     }
