@@ -1,0 +1,674 @@
+/*  *********************************************************************
+    *  Broadcom Common Firmware Environment (CFE)
+    *  
+    *  MPC8240 Registers			File: mpc8240.h
+    *  
+    *  Motorola MPC8240 SOC registers and values
+    *  
+    *  Author:  Mitch Lichtenberg
+    *  
+    *********************************************************************  
+    *
+    *  Copyright 2000,2001,2002,2003
+    *  Broadcom Corporation. All rights reserved.
+    *  
+    *  This software is furnished under license and may be used and 
+    *  copied only in accordance with the following terms and 
+    *  conditions.  Subject to these conditions, you may download, 
+    *  copy, install, use, modify and distribute modified or unmodified 
+    *  copies of this software in source and/or binary form.  No title 
+    *  or ownership is transferred hereby.
+    *  
+    *  1) Any source code used, modified or distributed must reproduce 
+    *     and retain this copyright notice and list of conditions 
+    *     as they appear in the source file.
+    *  
+    *  2) No right is granted to use any trade name, trademark, or 
+    *     logo of Broadcom Corporation.  The "Broadcom Corporation" 
+    *     name may not be used to endorse or promote products derived 
+    *     from this software without the prior written permission of 
+    *     Broadcom Corporation.
+    *  
+    *  3) THIS SOFTWARE IS PROVIDED "AS-IS" AND ANY EXPRESS OR
+    *     IMPLIED WARRANTIES, INCLUDING BUT NOT LIMITED TO, ANY IMPLIED
+    *     WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+    *     PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED. IN NO EVENT 
+    *     SHALL BROADCOM BE LIABLE FOR ANY DAMAGES WHATSOEVER, AND IN 
+    *     PARTICULAR, BROADCOM SHALL NOT BE LIABLE FOR DIRECT, INDIRECT,
+    *     INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+    *     (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+    *     GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+    *     BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY 
+    *     OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR 
+    *     TORT (INCLUDING NEGLIGENCE OR OTHERWISE), EVEN IF ADVISED OF 
+    *     THE POSSIBILITY OF SUCH DAMAGE.
+    ********************************************************************* */
+
+#if (!defined(_MPC8240_) && !defined(_MPC8245_))
+#error "You must define either _MPC8240_ or _MPC8245_ in your makefile."
+#endif
+#if (defined(_MPC8240_) && defined(_MPC845_))
+#error "You must make up your mind, 8240 or 8245, not both!"
+#endif
+
+/*
+ * This file is only concerned about Address Map "B"
+ */
+
+#define A_MPC_CONFIG_ADDR	0xfec00000    	/* PCI configuration space */
+#define A_MPC_CONFIG_DATA	0xfee00000
+
+/*
+ * PCI config space registers
+ */
+
+/*
+ * The first 40 bytes are a standard PCI Type 0 header, but the following
+ * registers need early initialization in some configurations.
+ */
+
+#define MPC_VID			0x80000000	/* 16 bits */
+#define MPC_DID			0x80000002	/* 16 bits */
+
+#define MPC_LATTMR		0x8000000d	/* 8 bits */
+#define MPC_CLSIZE		0x8000000c	/* 8 bits */
+
+#define MPC_PCICMD		0x80000004	/* 16 bits */
+#define MPC_PCISTS		0x80000006	/* 16 bits */
+
+#ifdef _MPC8245_
+#define MPC_PGCR                0x80000044      /* 16 bits, mpc8245 only */
+#endif
+
+#define MPC_PACR		0x80000046	/* 16 bits */
+
+#define MPC_PMCR1		0x80000070	/* 16 bits */
+#define MPC_PMCR2		0x80000072	/* 8 bits */
+#define MPC_ODCR		0x80000073	/* 8 bits */
+#define MPC_CDCR		0x80000074	/* 16 bits */
+
+#define MPC_EUMBBAR		0x80000078	/* 32 bits */
+
+#define MPC_MSAR1		0x80000080	/* 32 bits */
+#define MPC_MSAR2		0x80000084	/* 32 bits */
+#define MPC_XMSAR1		0x80000088	/* 32 bits */
+#define MPC_XMSAR2		0x8000008C	/* 32 bits */
+
+#define MPC_MEAR1		0x80000090	/* 32 bits */
+#define MPC_MEAR2		0x80000094	/* 32 bits */
+#define MPC_XMEAR1		0x80000098	/* 32 bits */
+#define MPC_XMEAR2		0x8000009C	/* 32 bits */
+
+#define MPC_MBEN 		0x800000A0	/* 8 bits */
+#define MPC_PGMODE		0x800000A3	/* 8 bits */
+
+#define MPC_PICR1		0x800000A8	/* 32 bits */
+#define MPC_PICR2		0x800000AC	/* 32 bits */
+#define MPC_ECCSBC		0x800000B8	/* 8 bits */
+#define MPC_ECCTRIG		0x800000B9	/* 8 bits */
+#define MPC_ERRENR1		0x800000C0	/* 8 bits */
+#define MPC_ERRDR1		0x800000C1	/* 8 bits */
+#define MPC_IPBESR		0x800000C3	/* 8 bits */
+#define MPC_ERRENR2		0x800000C4	/* 8 bits */
+#define MPC_ERRDR2		0x800000C5	/* 8 bits */
+#define MPC_PCIBSE		0x800000C7	/* 8 bits */
+#define MPC_ERRADDR		0x800000C8	/* 32 bits */
+#define MPC_AMBOR		0x800000E0	/* 8 bits */
+#define MPC_MCCR1	       	0x800000F0	/* 32 bits */
+#define MPC_MCCR2	       	0x800000F4	/* 32 bits */
+#define MPC_MCCR3	       	0x800000F8	/* 32 bits */
+#define MPC_MCCR4	       	0x800000FC	/* 32 bits */
+
+#ifdef _MPC8245_
+#define MPC_PCR			0x800000e2	/* 8 bits, semi-documented, MPC8245 */
+#define MPC_MIOCR1		0x80000076	/* 8 bits */ /* MPC8245 */
+#define MPC_MIOCR2		0x80000077	/* 8 bits */ /* MPC8245 */
+#define MPC_ERCR1		0x800000d0	/* 32 bits */ /* MPC8245 */
+#define MPC_ERCR2		0x800000d4	/* 32 bits */ /* MPC8245 */
+#define MPC_ERCR3		0x800000d8	/* 32 bits */ /* MPC8245 */
+#define MPC_ERCR4		0x800000dc	/* 32 bits */ /* MPC8245 */
+#endif
+
+/*
+ * PCI command register
+ */
+
+#define M_PCICMD_MEMENA		_MMR_MAKEMASK1(1)
+#define M_PCICMD_BUSMASTER	_MMR_MAKEMASK1(2)
+
+/*
+ * PCI General Control Register (mpc8245 only)
+ */
+
+#ifdef _MPC8245_
+#define S_PGCR_LAT_DISC_TMR	1
+#define M_PGCR_LAT_DISC_TMR	_MMR_MAKEMASK(2,S_PGCR_LAT_DISC_TMR)
+#define V_PGCR_LAT_DISC_TMR(x)	_MMR_MAKEVALUE(x,S_PGCR_LAT_DISC_TMR)
+#define G_PGCR_LAT_DISC_TMR(x)	_MMR_GETVALUE(x,S_PGCR_LAT_DISC_TMR,M_PGCR_LAT_DISC_TMR)
+
+#define M_PGCR_LOCK_DIS         _MMR_MAKEMASK1(4)
+#define M_PGCR_RETRY_RD_EN      _MMR_MAKEMAKS1(5)
+#endif
+
+/*
+ * PCI Aribiter Control Register
+ */
+
+#define S_PACR_EXTDEV_PRIO	0
+#define M_PACR_EXTDEV_PRIO	_MMR_MAKEMASK(5,S_PACR_EXTDEV_PRIO)
+#define V_PACR_EXTDEV_PRIO(x)	_MMR_MAKEVALUE(x,S_PACR_EXTDEV_PRIO)
+#define G_PACR_EXTDEV_PRIO(x)	_MMR_GETVALUE(x,S_PACR_EXTDEV_PRIO,M_PACR_EXTDEV_PRIO)
+
+#define M_PACR_MPC_PRIO		_MMR_MAKEMASK1(7)
+#define M_PACR_BRKN_MASTER_DIS	_MMR_MAKEMASK1(12)
+#define M_PACR_CFG_RETRY	_MMR_MAKEMASK1(10)
+
+#define S_PACR_PARK_MODE	13
+#define M_PACR_PARK_MODE	_MMR_MAKEMASK(2,S_PACR_PARK_MODE)
+#define V_PACR_PARK_MODE(x)	_MMR_MAKEVALUE(x,S_PACR_PARK_MODE)
+#define G_PACR_PARK_MODE(x)	_MMR_GETVALUE(x,S_PACR_PARK_MODE,M_PACR_PARK_MODE)
+#define K_PACR_PARK_LAST	0
+#define K_PACR_PARK_0		1
+#define K_PACR_PARK_MPC		2
+
+#define M_PAC_ARB_EN		_MMR_MAKEMASK1(15)
+
+/*
+ * Processor interface config 1 
+ */
+
+#define M_PIC1_RD_SPEC_EN	_MMR_MAKEMASK1(2)
+#define M_PIC1_CF_APARK		_MMR_MAKEMASK1(3)
+
+#ifdef _MPC8240_
+#define M_PIC1_MBO		(_MMR_MAKEMASK1(4) | 0xFF000000)
+#else
+#define M_PIC1_MBO		(_MMR_MAKEMASK1(4))
+#endif
+
+#define M_PIC1_LE_MODE		_MMR_MAKEMASK1(5)
+#define M_PIC1_ST_GATH_EN	_MMR_MAKEMASK1(6)
+
+#ifdef _MPC8245_
+#define M_PIC1_RSVD		_MMR_MAKEMASK1(7)
+#define M_PIC1_DEC		_MMR_MAKEMASK1(8)
+#endif
+
+#define M_PIC1_CF_DPARK		_MMR_MAKEMASK1(9)
+#define M_PIC1_MCP_EN		_MMR_MAKEMASK1(11)
+#define M_PIC1_FLASH_WR_EN	_MMR_MAKEMASK1(12)
+#define M_PIC1_ADDRESS_MAP	_MMR_MAKEMASK1(16)
+
+#define S_PIC1_PROC_TYPE	17
+#define M_PIC1_PROC_TYPE	_MMR_MAKEMASK(2,S_PIC1_PROC_TYPE)
+#define V_PIC1_PROC_TYPE(x)	_MMR_MAKEVALUE(x,S_PIC1_PROC_TYPE)
+#define G_PIC1_PROC_TYPE(x)	_MMR_GETVALUE(x,S_PIC1_PROC_TYPE,M_PIC1_PROC_TYPE)
+
+#define M_PIC1_RCS0		_MMR_MAKEMASK1(20)
+
+/*
+ * Processor interface config 2
+ */
+
+#ifdef _MPC8240_
+#define S_PIC2_CF_IP2		2
+#define M_PIC2_CF_IP2		_MMR_MAKEMASK(2,S_PIC2_CF_IP2)
+#define V_PIC2_CF_IP2(x)	_MMR_MAKEVALUE(x,S_PIC2_CF_IP2)
+#define G_PIC2_CF_IP2(x)	_MMR_GETVALUE(x,S_PIC2_CF_IP2,M_PIC2_CF_IP2)
+
+#define S_PIC2_CF_IP1		2
+#define M_PIC2_CF_IP1		_MMR_MAKEMASK(18,S_PIC2_CF_IP1)
+#define V_PIC2_CF_IP1(x)	_MMR_MAKEVALUE(x,S_PIC2_CF_IP1)
+#define G_PIC2_CF_IP1(x)	_MMR_GETVALUE(x,S_PIC2_CF_IP1,M_PIC2_CF_IP1)
+#endif
+
+#define M_PIC2_FLASH_WR_LOCKOUT	_MMR_MAKEMASK1(25)
+#define M_PIC2_CF_FF0_LOCAL	_MMR_MAKEMASK1(26)
+#define M_PIC2_NO_SNOOP_EN	_MMR_MAKEMASK1(27)
+#define M_PIC2_NO_SERIAL_CFG	_MMR_MAKEMASK1(29)
+
+/*
+ * Power Management Configuration Register 1
+ */
+
+#define M_PMCR1_CKO_SEL		_MMR_MAKEMASK1(0)
+
+#define S_PMCR1_CKO_MODE	1
+#define M_PMCR1_CKO_MODE	_MMR_MAKEMASK(2,S_PMCR1_CKO_MODE)
+#define V_PMCR1_CKO_MODE(x)	_MMR_MAKEVALUE(x,S_PMCR1_CKO_MODE)
+#define G_PMCR1_CKO_MODE(x)	_MMR_GETVALUE(x,S_PMCR1_CKO_MODE,M_PMCR1_CKO_MODE)
+
+#define M_PMCR1_SLEEP		_MMR_MAKEMASK1(3)
+#define M_PMCR1_NAP		_MMR_MAKEMASK1(4)
+#define M_PMCR1_DOZE		_MMR_MAKEMASK1(5)
+#define M_PMCR1_PM		_MMR_MAKEMASK1(7)
+#define M_PMCR1_LP_REF_EN	_MMR_MAKEMASK1(12)
+#define M_PMCR1_NO_SLEEP_MSG	_MMR_MAKEMASK1(14)
+#define M_PMCR1_NO_NAP_MSG	_MMR_MAKEMASK1(15)
+
+
+/*
+ * Power Management Configuration Register 2
+ */
+
+#ifdef _MPC8240_
+#define M_PMCR2_SHARED_MCP	_MMR_MAKEMASK1(0)
+#endif
+
+#define M_PMCR2_PLL_SLEEP	_MMR_MAKEMASK1(2)
+
+#ifdef _MPC8240_
+#define S_PMCR2_PCI_HOLD	4
+#define M_PMCR2_PCI_HOLD	_MMR_MAKEMASK(3,S_PMCR2_PCI_HOLD)
+#define V_PMCR2_PCI_HOLD(x)	_MMR_MAKEVALUE(x,S_PMCR2_PCI_HOLD)
+#define G_PMCR2_PCI_HOLD(x)	_MMR_GETVALUE(x,S_PMCR2_PCI_HOLD,M_PMCR2_PCI_HOLD)
+#endif
+
+#ifdef _MPC8245_
+#define S_PMCR2_PCI_HOLD	4
+#define M_PMCR2_PCI_HOLD	_MMR_MAKEMASK(2,S_PMCR2_PCI_HOLD)
+#define V_PMCR2_PCI_HOLD(x)	_MMR_MAKEVALUE(x,S_PMCR2_PCI_HOLD)
+#define G_PMCR2_PCI_HOLD(x)	_MMR_GETVALUE(x,S_PMCR2_PCI_HOLD,M_PMCR2_PCI_HOLD)
+#endif
+
+#define M_PMCR2_DLL_EXTEND	_MMR_MAKEMASK1(7)
+
+/*
+ * Output drive control register 
+ */
+
+#define M_ODCR_PCI		_MMR_MAKEMASK1(7)
+#define M_ODCR_STD		_MMR_MAKEMASK1(6)
+#define M_ODCR_MEM_CTRL_1	_MMR_MAKEMASK1(5)
+#define M_ODCR_MEM_CTRL_2	_MMR_MAKEMASK1(4)
+#define M_ODCR_PCI_CLK_1	_MMR_MAKEMASK1(3)
+#define M_ODCR_PCI_CLK_2	_MMR_MAKEMASK1(2)
+#define M_ODCR_MEM_CLK_1	_MMR_MAKEMASK1(1)
+#define M_ODCR_MEM_CLK_2	_MMR_MAKEMASK1(0)
+
+/*
+ * Clock drive control register
+ */
+
+#define M_CDCR_SDRAM_CLK3_DIS	_MMR_MAKEMASK1(3)
+#define M_CDCR_SDRAM_CLK2_DIS	_MMR_MAKEMASK1(4)
+#define M_CDCR_SDRAM_CLK1_DIS	_MMR_MAKEMASK1(5)
+#define M_CDCR_SDRAM_CLK0_DIS	_MMR_MAKEMASK1(6)
+
+#define M_CDCR_PCI_CLK4_DIS	_MMR_MAKEMASK1(10)
+#define M_CDCR_PCI_CLK3_DIS	_MMR_MAKEMASK1(11)
+#define M_CDCR_PCI_CLK2_DIS	_MMR_MAKEMASK1(12)
+#define M_CDCR_PCI_CLK1_DIS	_MMR_MAKEMASK1(13)
+#define M_CDCR_PCI_CLK0_DIS	_MMR_MAKEMASK1(14)
+
+/*
+ * Memory boundary register
+ */
+
+#define V_MBR_BANKn(b,x)	_MMR_MAKEVALUE(x,(x)*8)
+#define V_XMBR_BANKn(b,x)	_MMR_MAKEVALUE(x,(x)*8)
+
+#define M_MBER_BANKn(x)		_MMR_MAKEMASK1(x)
+
+/*
+ * Error enable register
+ */
+
+#define M_ERREN_PTERR		_MMR_MAKEMASK1(0)
+#define M_ERREN_PCIABORT	_MMR_MAKEMASK1(1)
+#define M_ERREN_PARECC		_MMR_MAKEMASK1(2)
+#define M_ERREN_MSTPERR		_MMR_MAKEMASK1(3)
+#define M_ERREN_REFOVL		_MMR_MAKEMASK1(4)
+#define M_ERREN_MEMSEL		_MMR_MAKEMASK1(5)
+#define M_ERREN_TGTPERR		_MMR_MAKEMASK1(6)
+#define M_ERREN_RXSERR		_MMR_MAKEMASK1(7)
+
+/*
+ * Error detect register
+ */
+
+#define S_ERRDT_UPT		0
+#define M_ERRDT_UPT		_MMR_MAKEMASK(2,S_ERRDT_UPT)
+#define V_ERRDT_UPT(x)		_MMR_MAKEVALUE(x,S_ERRDT_UPT)
+#define G_ERRDT_UPT(x)		_MMR_GETVALUE(x,S_ERRDT_UPT,M_ERRDT_UPT)
+
+#define M_ERRDT_PARECC		_MMR_MAKEMASK1(2)
+#define M_ERRDT_PROCPCI		_MMR_MAKEMASK1(3)
+#define M_ERRDT_REFOVL		_MMR_MAKEMASK1(4)
+#define M_ERRDT_MEMSEL		_MMR_MAKEMASK1(5)
+#define M_ERRDT_TGTPERR		_MMR_MAKEMASK1(6)
+#define M_ERRDT_RXSERR		_MMR_MAKEMASK1(7)
+
+/*
+ * Internal processor bus status register
+ */
+
+#define M_PIBDT_ROMWRITE	_MMR_MAKEMASK1(0)
+#define M_PIBDT_TGTABORT	_MMR_MAKEMASK1(1)
+#define M_PIBDT_PARERR		_MMR_MAKEMASK1(2)
+#define M_PIBDT_ECCERR		_MMR_MAKEMASK1(3)
+#define M_PIBDT_ADDRPAR		_MMR_MAKEMASK1(7)
+
+
+/*
+ * Internal processor bus error enable 
+ */
+
+#define M_PIBEN_ROMWRITE	_MMR_MAKEMASK1(0)
+#define M_PIBEN_TGTABORT	_MMR_MAKEMASK1(1)
+#define M_PIBEN_PARERR		_MMR_MAKEMASK1(2)
+#define M_PIBEN_ECCERR		_MMR_MAKEMASK1(3)
+#define M_PIBEN_PCISERR		_MMR_MAKEMASK1(6)
+#define M_PIBEN_ADDRPAR		_MMR_MAKEMASK1(7)
+
+/*
+ * Error detect register 2
+ */
+
+#define M_ERRDT2_ROMWRITE	_MMR_MAKEMASK1(0)
+#define M_ERRDT2_MEMWRPAR	_MMR_MAKEMASK1(1)
+#define M_ERRDT2_ECCERR		_MMR_MAKEMASK1(3)
+#define M_ERRDT2_INVERRADDR	_MMR_MAKEMASK1(7)
+
+/*
+ * Address map B options register
+ */
+
+#define M_AMBOR_PROCHOLE	_MMR_MAKEMASK1(2)
+#define M_AMBOR_PCIHOLE		_MMR_MAKEMASK1(3)
+#define M_AMBOR_DLLRESET	_MMR_MAKEMASK1(5)
+#define M_AMBOR_PCI_FD_ALIAS	_MMR_MAKEMASK1(6)
+#define M_AMBOR_CPU_FD_ALIAS	_MMR_MAKEMASK1(7)
+
+/*
+ * Misc IO Control 1 (MPC8245)
+ */
+
+#ifdef _MPC8245_
+#define M_MIOCR1_CLK_FLIP	_MMR_MAKEMASK1(1)
+#define M_MIOCR1_DLL_MAX_DELAY	_MMR_MAKEMASK1(2)
+#define M_MIOCR1_MCP_OD_MODE	_MMR_MAKEMASK1(7)
+#endif
+
+/*
+ * Misc IO Control 2 (MPC8245)
+ */
+
+#define S_MIOCR2_SDRAM_DSCD	4
+#define M_MIOCR2_SDRAM_DSCD	_MMR_MAKEMASK(2,S_MIOCR2_SDRAM_DSCD)
+#define V_MIOCR2_SDRAM_DSCD(x)	_MMR_MAKEVALUE(x,S_MIOCR2_SDRAM_DSCD)
+#define G_MIOCR2_SDRAM_DSCD(x)	_MMR_GETVALUE(x,S_MIOCR2_SDRAM_DSCD,M_MIOCR2_SDRAM_DSCD)
+
+/*
+ * Memory control configuration register 1
+ */
+
+
+#define V_MCCR1_BANKnROW(b,x)	_MMR_MAKEVALUE(x,(b)*2)
+#define K_MCCR1_ROW9		0
+#define K_MCCR1_ROW10		1
+#define K_MCCR1_ROW11		2
+#define K_MCCR1_ROW12		3
+
+#define M_MCCR1_PCKEN		_MMR_MAKEMASK1(16)
+#define M_MCCR1_RAMTYPE		_MMR_MAKEMASK1(17)
+#define M_MCCR1_SREN		_MMR_MAKEMASK1(18)
+#define M_MCCR1_MEMGO		_MMR_MAKEMASK1(19)
+#define M_MCCR1_BURST		_MMR_MAKEMASK1(20)
+
+#define S_MCCR1_ROMFAL		23
+#define M_MCCR1_ROMFAL		_MMR_MAKEMASK(5,S_MCCR1_ROMFAL)
+#define V_MCCR1_ROMFAL(x)	_MMR_MAKEVALUE(x,S_MCCR1_ROMFAL)
+#define G_MCCR1_ROMFAL(x)	_MMR_GETVALUE(x,S_MCCR1_ROMFAL,M_MCCR1_ROMFAL)
+
+#define S_MCCR1_ROMNAL		28
+#define M_MCCR1_ROMNAL		_MMR_MAKEMASK(4,S_MCCR1_ROMNAL)
+#define V_MCCR1_ROMNAL(x)	_MMR_MAKEVALUE(x,S_MCCR1_ROMNAL)
+#define G_MCCR1_ROMNAL(x)	_MMR_GETVALUE(x,S_MCCR1_ROMNAL,M_MCCR1_ROMNAL)
+
+/*
+ * Memory control configuration register 2
+ */
+
+#define M_MCCR2_RMWPAR		_MMR_MAKEMASK1(0)
+#define M_MCCR2_RSVPG		_MMR_MAKEMASK1(1)
+
+#define S_MCCR2_REFINT		2
+#define M_MCCR2_REFINT		_MMR_MAKEMASK(14,S_MCCR2_REFINT)
+#define V_MCCR2_REFINT(x)	_MMR_MAKEVALUE(x,S_MCCR2_REFINT)
+#define G_MCCR2_REFINT(x)	_MMR_GETVALUE(x,S_MCCR2_REFINT,M_MCCR2_REFINT)
+
+#ifdef _MPC8240_
+#define M_MCCR2_EDO		_MMR_MAKEMASK1(16)
+#define M_MCCR2_ECCEN		_MMR_MAKEMASK1(17)
+#endif
+
+#define M_MCCR2_INLINERD	_MMR_MAKEMASK1(18)
+#define M_MCCR2_WPARCHK		_MMR_MAKEMASK1(19)
+#define M_MCCR2_INLPARNOECC	_MMR_MAKEMASK1(20)
+
+#define S_MCCR2_TSWAIT		29
+#define M_MCCR2_TSWAIT		_MMR_MAKEMASK(3,S_MCCR2_TSWAIT)
+#define V_MCCR2_TSWAIT(x)	_MMR_MAKEVALUE(x,S_MCCR2_TSWAIT)
+#define G_MCCR2_TSWAIT(x)	_MMR_GETVALUE(x,S_MCCR2_TSWAIT,M_MCCR2_TSWAIT)
+
+#define S_MCCR2_ASRISE		25
+#define M_MCCR2_ASRISE		_MMR_MAKEMASK(4,S_MCCR2_ASRISE)
+#define V_MCCR2_ASRISE(x)	_MMR_MAKEVALUE(x,S_MCCR2_ASRISE)
+#define G_MCCR2_ASRISE(x)	_MMR_GETVALUE(x,S_MCCR2_ASRISE,M_MCCR2_ASRISE)
+
+#define S_MCCR2_ASFALL		21
+#define M_MCCR2_ASFALL		_MMR_MAKEMASK(4,S_MCCR2_ASFALL)
+#define V_MCCR2_ASFALL(x)	_MMR_MAKEVALUE(x,S_MCCR2_ASFALL)
+#define G_MCCR2_ASFALL(x)	_MMR_GETVALUE(x,S_MCCR2_ASFALL,M_MCCR2_ASFALL)
+
+/*
+ * Memory control configuration register 3
+ */
+
+#ifdef _MPC8240_
+#define S_MCCR3_RP1		0
+#define M_MCCR3_RP1		_MMR_MAKEMASK(3,S_MCCR3_RP1)
+#define V_MCCR3_RP1(x)		_MMR_MAKEVALUE(x,S_MCCR3_RP1)
+#define G_MCCR3_RP1(x)		_MMR_GETVALUE(x,S_MCCR3_RP1,M_MCCR3_RP1)
+
+#define S_MCCR3_RCD2		3
+#define M_MCCR3_RCD2		_MMR_MAKEMASK(3,S_MCCR3_RCD2)
+#define V_MCCR3_RCD2(x)		_MMR_MAKEVALUE(x,S_MCCR3_RCD2)
+#define G_MCCR3_RCD2(x)		_MMR_GETVALUE(x,S_MCCR3_RCD2,M_MCCR3_RCD2)
+
+#define S_MCCR3_CAS3		6
+#define M_MCCR3_CAS3		_MMR_MAKEMASK(3,S_MCCR3_CAS3)
+#define V_MCCR3_CAS3(x)		_MMR_MAKEVALUE(x,S_MCCR3_CAS3)
+#define G_MCCR3_CAS3(x)		_MMR_GETVALUE(x,S_MCCR3_CAS3,M_MCCR3_CAS3)
+
+#define S_MCCR3_CP4		9
+#define M_MCCR3_CP4		_MMR_MAKEMASK(4,S_MCCR3_CP4)
+#define V_MCCR3_CP4(x)		_MMR_MAKEVALUE(3,S_MCCR3_CP4)
+#define G_MCCR3_CP4(x)		_MMR_GETVALUE(x,S_MCCR3_CP4,M_MCCR3_CP4)
+
+#define S_MCCR3_CAS5		12
+#define M_MCCR3_CAS5		_MMR_MAKEMASK(3,S_MCCR3_CAS5)
+#define V_MCCR3_CAS5(x)		_MMR_MAKEVALUE(x,S_MCCR3_CAS5)
+#define G_MCCR3_CAS5(x)		_MMR_GETVALUE(x,S_MCCR3_CAS5,M_MCCR3_CAS5)
+
+#define S_MCCR3_RAS6		15
+#define M_MCCR3_RAS6		_MMR_MAKEMASK(4,S_MCCR3_RAS6)
+#define V_MCCR3_RAS6(x)		_MMR_MAKEVALUE(x,S_MCCR3_RAS6)
+#define G_MCCR3_RAS6(x)		_MMR_GETVALUE(x,S_MCCR3_RAS6,M_MCCR3_ASF
+
+#define M_MCCR3_CPX		_MMR_MAKEMASK1(19)
+
+#define S_MCCR3_RDLAT		20
+#define M_MCCR3_RDLAT		_MMR_MAKEMASK(4,S_MCCR3_RDLAT)
+#define V_MCCR3_RDLAT(x)	_MMR_MAKEVALUE(x,S_MCCR3_RDLAT)
+#define G_MCCR3_RDLAT(x)	_MMR_GETVALUE(x,S_MCCR3_RDLAT,M_MCCR3_RDLAT)
+#endif
+
+
+#define S_MCCR3_REFREC		24
+#define M_MCCR3_REFREC		_MMR_MAKEMASK(4,S_MCCR3_REFREC)
+#define V_MCCR3_REFREC(x)	_MMR_MAKEVALUE(x,S_MCCR3_REFREC)
+#define G_MCCR3_REFREC(x)	_MMR_GETVALUE(x,S_MCCR3_REFREC,M_MCCR3_REFREC)
+
+#define S_MCCR3_BSTOPRE		28
+#define M_MCCR3_BSTOPRE		_MMR_MAKEMASK(4,S_MCCR3_BSTOPRE)
+#define V_MCCR3_BSTOPRE(x)	_MMR_MAKEVALUE(x,S_MCCR3_BSTOPRE)
+#define G_MCCR3_BSTOPRE(x)	_MMR_GETVALUE(x,S_MCCR3_BSTOPRE,M_MCCR3_BSTOPRE)
+
+
+/*
+ * Memory control configuration register 4
+ */
+
+#define S_MCCR4_BSTOPRE69	0
+#define M_MCCR4_BSTOPRE69	_MMR_MAKEMASK(4,S_MCCR4_BSTOPRE69)
+#define V_MCCR4_BSTOPRE69(x)	_MMR_MAKEVALUE(x,S_MCCR4_BSTOPRE69)
+#define G_MCCR4_BSTOPRE69(x)	_MMR_GETVALUE(x,S_MCCR4_BSTOPRE69,M_MCCR4_BSTOPRE69)
+
+#define S_MCCR4_ACTORW		4
+#define M_MCCR4_ACTORW		_MMR_MAKEMASK(4,S_MCCR4_ACTORW)
+#define V_MCCR4_ACTORW(x)	_MMR_MAKEVALUE(x,S_MCCR4_ACTORW)
+#define G_MCCR4_ACTORW(x)	_MMR_GETVALUE(x,S_MCCR4_ACTORW,M_MCCR4_ACTORW)
+
+#define S_MCCR4_SDMODE		8
+#define M_MCCR4_SDMODE		_MMR_MAKEMASK(7,S_MCCR4_SDMODE)
+#define V_MCCR4_SDMODE(x)	_MMR_MAKEVALUE(x,S_MCCR4_SDMODE)
+#define G_MCCR4_SDMODE(x)	_MMR_GETVALUE(x,S_MCCR4_SDMODE,M_MCCR4_SDMODE)
+
+#define S_MCCR4_SDMODE_CAS	12
+#define M_MCCR4_SDMODE_CAS	_MMR_MAKEMASK(7,S_MCCR4_SDMODE)
+#define V_MCCR4_SDMODE_CAS(x)	_MMR_MAKEVALUE(x,S_MCCR4_SDMODE)
+#define G_MCCR4_SDMODE_CAS(x)	_MMR_GETVALUE(x,S_MCCR4_SDMODE,M_MCCR4_SDMODE)
+
+#define M_MCCR4_REGDIMM		_MMR_MAKEMASK1(15)
+
+#ifdef _MPC8245_
+#define M_MCCR4_DBUS_SIZE	_MMR_MAKEMASK1(17)
+#endif
+
+#define S_MCCR4_BSTOPRE01	18
+#define M_MCCR4_BSTOPRE01	_MMR_MAKEMASK(2,S_MCCR4_BSTOPRE01)
+#define V_MCCR4_BSTOPRE01(x)	_MMR_MAKEVALUE(x,S_MCCR4_BSTOPRE01)
+#define G_MCCR4_BSTOPRE01(x)	_MMR_GETVALUE(x,S_MCCR4_BSTOPRE01,M_MCCR4_BSTOPRE01)
+
+#define M_MCCR4_BUFTYPE1	_MMR_MAKEMASK1(20)
+
+#ifdef _MPC8245_
+#define M_MCCR4_EXTROM		_MMR_MAKEMASK1(21)
+#endif
+
+#define M_MCCR4_BUFTYPE0	_MMR_MAKEMASK1(22)
+#define M_MCCR4_WMODE		_MMR_MAKEMASK1(23)
+
+#define S_MCCR4_ACTOPRE		24
+#define M_MCCR4_ACTOPRE		_MMR_MAKEMASK(4,S_MCCR4_ACTOPRE)
+#define V_MCCR4_ACTOPRE(x)	_MMR_MAKEVALUE(x,S_MCCR4_ACTOPRE)
+#define G_MCCR4_ACTOPRE(x)	_MMR_GETVALUE(x,S_MCCR4_ACTOPRE,M_MCCR4_ACTOPRE)
+
+#define S_MCCR4_PRETOACT	28
+#define M_MCCR4_PRETOACT	_MMR_MAKEMASK(4,S_MCCR4_PRETOACT)
+#define V_MCCR4_PRETOACT(x)	_MMR_MAKEVALUE(x,S_MCCR4_PRETOACT)
+#define G_MCCR4_PRETOACT(x)	_MMR_GETVALUE(x,S_MCCR4_PRETOACT,M_MCCR4_PRETOACT)
+
+
+
+/*
+ * Extended ROM configuration registers (MPC8245)
+ */
+
+#define M_ERCR12_EN		_MMR_MAKEMASK1(31)
+#define M_ERCR12_BURST		_MMR_MAKEMASK1(30)
+
+#define S_ERCR12_DBW		28
+#define M_ERCR12_DBW		_MMR_MAKEMASK(2,S_ERCR12_DBW)
+#define V_ERCR12_DBW(x)		_MMR_MAKEVALUE(x,S_ERCR12_DBW)
+#define G_ERCR12_DBW(x)		_MMR_GETVALUE(x,S_ERCR12_DBW,M_ERCR12_DBW)
+
+#define K_ERCR12_DBW_8BIT	0
+#define K_ERCR12_DBW_16BIT	1
+#define K_ERCR12_DBW_32BIT	2
+#define K_ERCR12_DBW_WIDE	3
+
+#define S_ERCR12_CTL		26
+#define M_ERCR12_CTL		_MMR_MAKEMASK(2,S_ERCR12_CTL)
+#define V_ERCR12_CTL(x)		_MMR_MAKEVALUE(x,S_ERCR12_CTL)
+#define G_ERCR12_CTL(x)		_MMR_GETVALUE(x,S_ERCR12_CTL,M_ERCR12_CTL)
+
+#define K_ERCR12_CTL_INDEP		0
+#define K_ERCR12_CTL_BASE		1
+#define K_ERCR12_CTL_PORTX_STROBE	2
+#define K_ERCR12_CTL_PORTX_HANDSHAKE	3
+
+#define S_ERCR12_ROMFAL		20
+#define M_ERCR12_ROMFAL		_MMR_MAKEMASK(5,S_ERCR12_ROMFAL)
+#define V_ERCR12_ROMFAL(x)	_MMR_MAKEVALUE(x,S_ERCR12_ROMFAL)
+#define G_ERCR12_ROMFAL(x)	_MMR_GETVALUE(x,S_ERCR12_ROMFAL,M_ERCR12_ROMFAL)
+
+#define S_ERCR12_ROMNAL		15
+#define M_ERCR12_ROMNAL		_MMR_MAKEMASK(5,S_ERCR12_ROMNAL)
+#define V_ERCR12_ROMNAL(x)	_MMR_MAKEVALUE(x,S_ERCR12_ROMNAL)
+#define G_ERCR12_ROMNAL(x)	_MMR_GETVALUE(x,S_ERCR12_ROMNAL,M_ERCR12_ROMNAL)
+
+#define S_ERCR12_ASFALL		10
+#define M_ERCR12_ASFALL		_MMR_MAKEMASK(5,S_ERCR12_ASFALL)
+#define V_ERCR12_ASFALL(x)	_MMR_MAKEVALUE(x,S_ERCR12_ASFALL)
+#define G_ERCR12_ASFALL(x)	_MMR_GETVALUE(x,S_ERCR12_ASFALL,M_ERCR12_ASFALL)
+
+#define S_ERCR12_ASRISE		5
+#define M_ERCR12_ASRISE		_MMR_MAKEMASK(5,S_ERCR12_ASRISE)
+#define V_ERCR12_ASRISE(x)	_MMR_MAKEVALUE(x,S_ERCR12_ASRISE)
+#define G_ERCR12_ASRISE(x)	_MMR_GETVALUE(x,S_ERCR12_ASRISE,M_ERCR12_ASRISE)
+
+#define S_ERCR12_TSWAIT		0
+#define M_ERCR12_TSWAIT		_MMR_MAKEMASK(5,S_ERCR12_TSWAIT)
+#define V_ERCR12_TSWAIT(x)	_MMR_MAKEVALUE(x,S_ERCR12_TSWAIT)
+#define G_ERCR12_TSWAIT(x)	_MMR_GETVALUE(x,S_ERCR12_TSWAIT,M_ERCR12_TSWAIT)
+
+
+#define S_ERCR34_SADDR		12
+#define M_ERCR34_SADDR		_MMR_MAKEMASK(16,S_ERCR34_SADDR)
+#define V_ERCR34_SADDR(x)	_MMR_MAKEVALUE(x,S_ERCR34_SADDR)
+#define G_ERCR34_SADDR(x)	_MMR_GETVALUE(x,S_ERCR34_SADDR,M_ERCR34_SADDR)
+
+#define S_ERCR34_SIZE		0
+#define M_ERCR34_SIZE		_MMR_MAKEMASK(4,S_ERCR34_SIZE)
+#define V_ERCR34_SIZE(x)	_MMR_MAKEVALUE(x,S_ERCR34_SIZE)
+#define G_ERCR34_SIZE(x)	_MMR_GETVALUE(x,S_ERCR34_SIZE,M_ERCR34_SIZE)
+
+#define K_ERCR34_SIZE_4K	0
+#define K_ERCR34_SIZE_8K	1
+#define K_ERCR34_SIZE_16K	2
+#define K_ERCR34_SIZE_32K	3
+#define K_ERCR34_SIZE_64K	4
+#define K_ERCR34_SIZE_128K	5
+#define K_ERCR34_SIZE_256K	6
+#define K_ERCR34_SIZE_512K	7
+#define K_ERCR34_SIZE_1M	8
+#define K_ERCR34_SIZE_2M	9
+#define K_ERCR34_SIZE_4M	10
+#define K_ERCR34_SIZE_8M	11
+#define K_ERCR34_SIZE_16M	12
+#define K_ERCR34_SIZE_32M	13
+#define K_ERCR34_SIZE_64M	14
+#define K_ERCR34_SIZE_128M	15
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

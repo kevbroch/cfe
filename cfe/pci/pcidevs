@@ -1,0 +1,172 @@
+$pcidevs 2002/09/03 broadcom $
+
+/*
+ * Copyright (c) 1995, 1996 Christopher G. Demetriou
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. All advertising materials mentioning features or use of this software
+ *    must display the following acknowledgement:
+ *      This product includes software developed by Christopher G. Demetriou
+ *	for the NetBSD Project.
+ * 4. The name of the author may not be used to endorse or promote products
+ *    derived from this software without specific prior written permission
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+/*
+ * NOTE: a fairly complete list of PCI codes can be found at:
+ *
+ *	http://members.hyperlink.net.au/~chart/pci.htm
+ *
+ * which replaces the database found at
+ *
+ *	http://www.yourvote.com/pci/
+ *
+ * (but it doesn't always seem to match vendor documentation)
+ */
+
+/*
+ * List of known PCI vendors.  This list has been trimmed to include
+ * only vendors of products supported by CFE drivers.
+ */
+
+vendor NS		0x100b	National Semiconductor
+vendor DEC		0x1011	Digital Equipment
+vendor AMD		0x1022	Advanced Micro Devices
+vendor OPTI		0x1045	Opti
+vendor TEXASINST        0x104c  Texas Instruments
+vendor TUNDRA		0x10e3	Tundra Semiconductor
+vendor REALTEK		0x10ec	Realtek Semiconductor
+vendor SERVERWORKS      0x1166  ServerWorks
+vendor PERICOM		0x12d8	Pericom Semiconductor
+vendor ALSC		0x14d9	Alliance Semiconductor
+vendor BROADCOM		0x14e4	Broadcom
+vendor SIBYTE		0x166d	SiByte, Inc.
+vendor HINT		0x3388	Hint Corp.
+vendor INTEL		0x8086	Intel
+vendor ADP		0x9004  Adaptec
+
+/*
+ * List of known products.  Grouped by vendor.  This list has been
+ * trimmed to include only products with chip-specific CFE drivers.
+ */
+
+/* Adaptec products */
+product	ADP AIC6915	0x6915	AIC-6915 10/100 Ethernet
+
+/* Alliance (formerly API Networks) products */
+product	ALSC SP1011	0x0010	SP1011 HyperTransport-PCI Bridge
+product	ALSC AS90L10208	0x9000	AS90L10208 HyperTransport-PCI-X Bridge
+
+/* AMD products */
+product AMD HT7520	0x7450	(PLX) HT7520 PCI-X Tunnel
+product AMD HT7520_PIC	0x7451	(PLX) HT7520 PCI-X IOAPIC
+product AMD AMD8151_AGP	0x7454	AMD8151 AGP Device
+product AMD AMD8151	0x7455	AMD8151 HyperTransport-AGP Bridge
+
+/* Broadcom products */
+product	BROADCOM BCM5700	0x1644	BCM5700 10/100/1000 Ethernet
+product	BROADCOM BCM5701	0x1645	BCM5701 10/100/1000 Ethernet
+product	BROADCOM BCM5703_0	0x1647	BCM5703 10/100/1000 Ethernet
+product	BROADCOM BCM5704C	0x1648	BCM5704 Dual 10/100/1000 Ethernet
+product	BROADCOM BCM5706	0x164a	BCM5706 10/100/1000 Ethernet TOE
+product	BROADCOM BCM5705	0x1653	BCM5705 10/100/1000 Ethernet
+product	BROADCOM BCM5750	0x1676	BCM5750 10/100/1000 Ethernet
+product	BROADCOM BCM5705	0x1653	BCM5705 10/100/1000 Ethernet
+product BROADCOM BCM5703	0x16a7	BCM5703 10/100/1000 Ethernet
+product	BROADCOM BCM5704S	0x16a8	BCM5704 Dual 10/100/1000 Ethernet
+product	BROADCOM BCM5703_2	0x16c7	BCM5703 10/100/1000 Ethernet
+product BROADCOM BCM4401_B	0x170c	BCM4401 10/100 Ethernet
+product BROADCOM BCM4401	0x4401	BCM4401 10/100 Ethernet
+product BROADCOM BCM4704	0x4704	BCM4704 PCI Host Bridge
+product BROADCOM BCM4710	0x4710	BCM4710/4702 PCI Host Bridge
+product BROADCOM BCM5365        0x5365  BCM5365 PCI Host Bridge
+product	BROADCOM BCM5345	0x5635	BCM5345 Switching Processor
+product BROADCOM BCM5670	0x5670	BCM5670 HiGig Switch Fabric
+product BROADCOM BCM5671	0x5671	BCM5671 HiGig Switch Fabric
+product BROADCOM BCM5673	0x5673	BCM5673 StrataXGS Ethernet Switch
+product BROADCOM BCM5674	0x5674	BCM5674 StrataXGS Ethernet Switch
+product BROADCOM BCM5675	0x5675	BCM5675 HiGig Switch Fabric
+product BROADCOM BCM5680	0x5680	BCM5680 StrataSwitch Ethernet Switch
+product BROADCOM BCM5690	0x5690	BCM5690 StrataXGS Ethernet Switch
+product BROADCOM BCM5691	0x5691	BCM5691 StrataXGS Ethernet Switch
+product BROADCOM BCM5692	0x5692	BCM5692 StrataXGS Ethernet Switch
+product BROADCOM BCM5693	0x5693	BCM5693 StrataXGS Ethernet Switch
+product BROADCOM BCM5695	0x5695	BCM5695 StrataXGS Ethernet Switch
+product BROADCOM BCM5820	0x5820	BCM5820 Security Processor
+product BROADCOM BCM5821	0x5821	BCM5821 Security Processor
+product BROADCOM BCM5822	0x5822	BCM5822 Security Processor
+product BROADCOM BCM5823	0x5823	BCM5823 Security Processor
+product BROADCOM BCM5850	0x5850	BCM5850 SSL/TLS Protocol Processor
+product BROADCOM BCM56304	0xb304	BCM56304 StrataXGS Ethernet Switch
+product BROADCOM BCM56504	0xb504	BCM56504 StrataXGS Ethernet Switch
+product BROADCOM BCM56601	0xb601	BCM56601 StrataXGS Ethernet Switch
+product BROADCOM BCM56602	0xb602	BCM56602 StrataXGS Ethernet Switch
+
+/* DEC products */
+product DEC 21050	0x0001	DECchip 21050 PCI-PCI Bridge
+product DEC 21040	0x0002	DECchip 21040 Ethernet
+product DEC 21140	0x0009	DECchip 21140 10/100 Ethernet
+product DEC 21041	0x0014	DECchip 21041 Ethernet
+product DEC 21142	0x0019	DECchip 21142/21143 10/100 Ethernet
+product DEC 21052	0x0021	DECchip 21052 PCI-PCI Bridge
+product DEC 21150	0x0022	DECchip 21150 PCI-PCI Bridge
+product DEC 21150_2	0x0023	DECchip 21150 PCI-PCI Bridge
+product DEC 21152	0x0024	DECchip 21152 PCI-PCI Bridge
+product DEC 21153	0x0025	DECchip 21153 PCI-PCI Bridge
+product DEC 21154	0x0026	DECchip 21154 PCI-PCI Bridge
+
+/* Hint Corp. (now PLX) products */
+product	HINT HB4	0x0022	HB4 PCI-PCI Bridge (PLX PCI6150)
+
+/* Intel products */
+product INTEL IN_BUSINESS	0x1030	InBusiness Fast Ethernet LAN Controller
+product INTEL 82559ER		0x1209	82559ER Fast Ethernet LAN Controller
+product INTEL EEPRO100		0x1227	EE Pro 100 10/100 Fast Ethernet
+product INTEL EEPRO100S		0x1228	EE Pro 100 Smart 10/100 Fast Ethernet
+product INTEL 82557		0x1229	82557 Fast Ethernet LAN Controller
+product INTEL 21154		0xB154	21154 PCI-PCI Bridge
+
+/* Opti products */
+product OPTI 82C862		0xc861	82C862 FireLink USB Controller
+
+/* Pericom Semiconductor products */
+product PERICOM PI7C7300	0x71E2	PI7C7300
+product PERICOM PI7C8150	0x8150	PI7C8150
+product PERICOM PI7C8152	0x8152	PI7C8152
+
+/* National Semiconductor products */
+product NS DP83810	0x0001	DP83810 10/100 Ethernet
+product NS DP83815	0x0020	DP83815 10/100 Ethernet
+
+/* Realtek products */
+product REALTEK RT8139	0x8139	8139 10/100 Ethernet
+
+/* SiByte, Inc. (now Broadcom) products */
+product	SIBYTE SB1250_PCI	0x0001	BCM1250 PCI Host Bridge
+product	SIBYTE SB1250_LDT	0x0002	BCM1250 HyperTransport Host Bridge
+product SIBYTE SB1480_HTP	0x0010	BCM1480 HyperTransport Bridge (Primary)
+product SIBYTE SB1480_HTS	0x0011	BCM1480 HyperTransport Bridge (Secondary)
+product	SIBYTE SB1480_PCIX	0x0012	BCM1480 PCI-X Host Bridge
+product	SIBYTE SB1480_LDT	0x0014	BCM1480 HyperTransport Host Bridge
+
+/* Tundra products */
+product TUNDRA TEMPE	0x0148	Tempe VME Bridge

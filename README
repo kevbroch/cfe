@@ -1,0 +1,1994 @@
+/*  *********************************************************************
+    *  Broadcom Common Firmware Environment (CFE)
+    *  
+    *  README
+    *  
+    *  Author:  Mitch Lichtenberg
+    *  
+    *********************************************************************  
+    *
+    *  Copyright 2000,2001,2002,2003
+    *  Broadcom Corporation. All rights reserved.
+    *  
+    *  This software is furnished under license and may be used and 
+    *  copied only in accordance with the following terms and 
+    *  conditions.  Subject to these conditions, you may download, 
+    *  copy, install, use, modify and distribute modified or unmodified 
+    *  copies of this software in source and/or binary form.  No title 
+    *  or ownership is transferred hereby.
+    *  
+    *  1) Any source code used, modified or distributed must reproduce 
+    *     and retain this copyright notice and list of conditions 
+    *     as they appear in the source file.
+    *  
+    *  2) No right is granted to use any trade name, trademark, or 
+    *     logo of Broadcom Corporation.  The "Broadcom Corporation" 
+    *     name may not be used to endorse or promote products derived 
+    *     from this software without the prior written permission of 
+    *     Broadcom Corporation.
+    *  
+    *  3) THIS SOFTWARE IS PROVIDED "AS-IS" AND ANY EXPRESS OR
+    *     IMPLIED WARRANTIES, INCLUDING BUT NOT LIMITED TO, ANY IMPLIED
+    *     WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+    *     PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED. IN NO EVENT 
+    *     SHALL BROADCOM BE LIABLE FOR ANY DAMAGES WHATSOEVER, AND IN 
+    *     PARTICULAR, BROADCOM SHALL NOT BE LIABLE FOR DIRECT, INDIRECT,
+    *     INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+    *     (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+    *     GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+    *     BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY 
+    *     OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR 
+    *     TORT (INCLUDING NEGLIGENCE OR OTHERWISE), EVEN IF ADVISED OF 
+    *     THE POSSIBILITY OF SUCH DAMAGE.
+    ********************************************************************* */
+
+RELEASE NOTES FOR:  CFE version 1.4.0
+
+------------------------------------------------------------------------------
+INTRODUCTION
+------------------------------------------------------------------------------
+
+This directory contains Broadcom's Broadband processor division
+"Common Firmware Environment," or CFE.  (pronounce it 'cafe' if you like)
+
+It is intended to be a flexible toolkit of CPU initialization and 
+bootstrap code for use on processors like the SB1250 and its derivatives.
+
+CFE contains the following important features:
+
+   * Easy to port to new SB1250 designs
+   * Initializes CPUs, caches, memory controllers, and peripherals
+   * Built-in device drivers for SB1250 SOC peripherals
+   * Several console choices, including serial ports, ROM
+     emulators, JTAG, etc.
+   * Environment storage in NV EEPROM, flash, etc.
+   * Supports big or little endian operation
+   * Supports 32-bit and 64-bit processors
+   * Support for network bootstrap.  Network protocols supported 
+     include IP,ARP,ICMP,UDP,DHCP,TFTP.
+   * Support for disk bootstrap.
+   * Provides an external API for boot loaders and startup programs
+   * Simple user interface.  UI is easy to remove for embedded apps.
+
+See the file 'TODO' for a list of things that are being considered
+as CFE matures.
+
+There is some documentation in PDF format in the docs/ directory.
+
+------------------------------------------------------------------------
+
+Directory organization
+----------------------
+
+CFE is laid out to make it easy to build and maintain versions for
+different boards at the same time.  The directories at this level 
+are the build areas for ports of CFE:
+
+	cfe/		Main CFE source tree
+	build/		The "new" build tree location
+
+The 'build' directory contains build areas for various
+targets, and the skeletal Makefiles that build them.  This
+directory has subdirectories by vendor, so you can create
+your own directory here and avoid hassles with merging changes.
+
+	build/broadcom/bcm91280e/  BCM1480 evaluation board - "CUPERTINO"
+	build/broadcom/bcm91480b/  BCM1480 evaluation board - "BIG SUR"
+	build/broadcom/swarm/	   BCM1250 evaluation board - "SWARM"
+	build/broadcom/sentosa/	   BCM1250 evaluation board - "SENTOSA"
+	build/broadcom/rhone/      BCM1125 evaluation board - "RHONE"
+	build/broadcom/bcm1250cpci BCM1250 evaluation board - "BCM1250CPCI"
+	build/broadcom/vcs/	   Verilog simulator version
+	build/broadcom/sim/        Functional Simulator
+	build/broadcom/tiny/	   Minimal version of CFE
+
+The 'arch' directory contains architecture-specific stuff:
+
+	cfe/arch		Top of architecture tree
+	cfe/arch/mips		All MIPS-related subdirectories
+	cfe/arch/mips/cpu	CPU-specfic subdirectories
+	cfe/arch/mips/board	Board-specific subdirectories
+	cfe/arch/mips/common	Common MIPS-related sources
+
+For the SWARM platform, the following directories are of interest:
+
+	cfe/arch/mips/cpu/sb1250
+	cfe/arch/mips/board/swarm
+	cfe/arch/mips/common	
+
+For the SENTOSA platform, the following directories are of interest:
+
+	cfe/arch/mips/cpu/sb1250
+	cfe/arch/mips/board/sentosa
+	cfe/arch/mips/common	
+
+For the RHONE platform, the following directories are of interest:
+
+	cfe/arch/mips/cpu/sb1250
+	cfe/arch/mips/board/rhone
+	cfe/arch/mips/common	
+
+For the BCM91480B platform, the following directories are of interest:
+
+	cfe/arch/mips/cpu/bcm1480
+	cfe/arch/mips/board/bcm91480b
+	cfe/arch/mips/common	
+
+For the BCM91280E platform, the following directories are of interest:
+
+	cfe/arch/mips/cpu/bcm1480
+	cfe/arch/mips/board/bcm91280e
+	cfe/arch/mips/common	
+
+For the BCM91480HT platform, the following directories are of interest:
+
+	cfe/arch/mips/cpu/bcm1480
+	cfe/arch/mips/board/bcm91480ht
+	cfe/arch/mips/common
+
+Platform-independent sources continue to live in the cfe/
+directory and its subdirectories:
+
+	cfe/docs/	Documentation in PDF format
+
+	cfe/arch/	Platform-specific directories
+
+	cfe/dev/	Device drivers for consoles and boot storage
+	cfe/include/	Common include files
+	cfe/lib/	Common library routines
+	cfe/main/	Main program
+	cfe/net/	Network subsystem (IP, DHCP, TFTP, etc.)
+	cfe/pci/	PCI and LDT configuration
+	cfe/ui/		User interface
+	cfe/applets/	Test "applets" for firmware API
+	cfe/verif/      Stuff for running chip verification tests
+	cfe/hosttools/  Tools built on the host
+	cfe/vendor/     Vendor extensions to CFE
+
+	cfe/x86emu/	X86 emulator for VGA initialization
+	cfe/pccons/	PC console routines
+
+
+Building CFE
+------------
+
+To build the firmware for the swarm (BCM1250 evaluation board) 
+for example:
+
+	cd swarm ; gmake all ; cd ..
+
+This will produce:
+
+	swarm/cfe		Executable file
+	swarm/cfe.flash		Network flash update file
+	swarm/cfe.srec 		Motorola S-records 
+	swarm/cfe.map		Linker map file
+
+------------------------------------------------------------------------------
+CHANGES SINCE PREVIOUS VERSION (1.3.3)
+------------------------------------------------------------------------------
+
+* Support for sb1-elf toolchain version 4.1.0 added.
+
+* Add support for boards with no ODT chip selects and has DRAM at cs 0/1, 2/3, etc.  
+  This is for 1480-based boards only.
+
+* Add BCM112x B0 and BCM1250 C3 support.  This includes 1Gb DRAM support for 
+  sb1250_draminit.c
+
+* HSP Cleanup.  Moved HSP oriented ui command to ui_hspcmds.c (from ui_pmcmds.c)
+
+* HSP Cleanup.  All HSP oriented functions moved to new bcm1480_hsp_utils.c/h 3). 
+  Created new HSP ui routines and APIs for error detection on SPI4 and HT 4). 
+  Added PM remote loopback functionality through connected system.
+
+------------------------------------------------------------------------------
+CHANGES SINCE PREVIOUS VERSION (1.3.2)
+------------------------------------------------------------------------------
+
+* Initial support for the BCM91480HT "Big Dipper" evaluation board has been 
+  added.
+
+  This is an ATX-style BCM1480 eval board with 32-bit DDR2 DIMMs.
+
+* BCM1480 DRAM init feature: A new flag option to configure the MC for boards 
+  with no ODT chip selects.  The flag is MCFLAG_NO_ODT_CS.
+
+* CFE_CMD_DEV_ENUM API function now supported.
+
+* CFE_CMD_ENV_DEL API now correctly delete variables from the nonvolatile 
+  device as well as CFE's internal structures.
+
+------------------------------------------------------------------------------
+CHANGES SINCE PREVIOUS VERSION (1.3.1)
+------------------------------------------------------------------------------
+
+* Update bcm1480_pci_machdep.c.  HSP buffer allocation updated to be
+  within hardware spec.
+
+------------------------------------------------------------------------------
+CHANGES SINCE PREVIOUS VERSION (1.3.0)
+------------------------------------------------------------------------------
+
+* Support for the BCM91280E "CUPERTINO" evaluation board has been added.
+
+* SB1250 DRAM init feature: A new flag option to set Output Drive Strength to
+  "reduced strength" for DDR.
+
+* BCM1480 DRAM init feature: A new flag option to set Output Drive Strength to
+  "reduced strength" for DDR and DDR2.
+
+* Boards with non-parallel termination require SSTL_2 class 1 type for address
+  & data operations and reduced Output Drive Strength at the DRAM.
+
+  The Sentosa, Rhone, and Shorty have been updated for the above changes.
+ 
+* Add a new CPU type BCM1158 (one core, half cache, one HT port) to cpu info
+  code and banner display.
+
+* HT CSR updates:  txN_htio_txphitcnt bits 7:0 (npc_phitcnt) has a range from 
+  10..30. The init code now sets it at minimum of 10.
+  
+  Since npc_phitcnt = npc_ceiling - npc_floor + 1, npc_floor is now 0xC9 
+  (from 0xC5).
+
+* Packet Manager Diagnostic Updates:
+ 
+  Added random payload test cases for packet manager.
+
+  Added additional PM debug functionality.
+
+  Added first pass PM Hash & Route loop-back diag.
+	- HR block initialization.
+	- Basic framework for HR packet loop-back testing.
+	- HR path and rule table pass thru tests.  Map PMO(0-16) to PMI(0-16).
+	- HR IVC routing diag test case.
+	- HR payload word routing diag test case (including offset adjust).
+	- Path table "one-hot" bitmap routing diag test.
+	- Support for HR "next destination" hardware debug feature.
+
+------------------------------------------------------------------------------
+CHANGES SINCE PREVIOUS VERSION (1.3.0)
+------------------------------------------------------------------------------
+
+* Support for the BCM91280E "CUPERTINO" evaluation board has been added.
+
+* SB1250 DRAM init feature: A new flag option to set Output Drive Strength to
+  "reduced strength" for DDR.
+
+* BCM1480 DRAM init feature: A new flag option to set Output Drive Strength to
+  "reduced strength" for DDR and DDR2.
+
+* Boards with non-parallel termination require SSTL_2 class 1 type for address
+  & data operations and reduced Output Drive Strength at the DRAM.
+
+  The Sentosa, Rhone, and Shorty have been updated for the above changes.
+ 
+* Add a new CPU type BCM1158 (one core, half cache, one HT port) to cpu info
+  code and banner display.
+
+* HT CSR updates:  txN_htio_txphitcnt bits 7:0 (npc_phitcnt) has a range from 
+  10..30. The init code now sets it at minimum of 10.
+  
+  Since npc_phitcnt = npc_ceiling - npc_floor + 1, npc_floor is now 0xC9 
+  (from 0xC5).
+
+* Packet Manager Diagnostic Updates:
+ 
+  Added random payload test cases for packet manager.
+
+  Added additional PM debug functionality.
+
+  Added first pass PM Hash & Route loop-back diag.
+	- HR block initialization.
+	- Basic framework for HR packet loop-back testing.
+	- HR path and rule table pass thru tests.  Map PMO(0-16) to PMI(0-16).
+	- HR IVC routing diag test case.
+	- HR payload word routing diag test case (including offset adjust).
+	- Path table "one-hot" bitmap routing diag test.
+	- Support for HR "next destination" hardware debug feature.
+
+------------------------------------------------------------------------------
+CHANGES SINCE PREVIOUS VERSION (1.2.5)
+------------------------------------------------------------------------------
+
+* BCM1480 memory init routine improvements to support new features on the 
+  BCM1480 pass B0.  New features include: dynamic ODT, frequency range control 
+  for the DLL, 2T addr/command signaling and DQo/DQSo quarter cycle shift.
+
+* BCM1480 memory init routine improvements to support existing features.
+  These include: channel interleaving, chip select interleaving, "data capture
+  window" calculation, and DDR2 registered DIMMs/mini-DIMMs.
+
+* Improve memorytest command to do "walking 1s", "walking 0s", etc..
+
+* Added support for BCM1480-based systems using DIMMs and 4GB of memory.
+
+* Added support to select slowest chip select to configure MC when there are
+  multiple chip selects of different memory speeds.
+
+------------------------------------------------------------------------------
+CHANGES SINCE PREVIOUS VERSION (1.2.4)
+------------------------------------------------------------------------------
+
+This is a minor release.
+
+* Set maximum speed of DRAM for the BCM91480B evaluation board to 200MHz.
+  (the DRAM init table has a "speed limit" flag to prevent the memory system
+  from running faster than the board is electrically capable of).  You
+  can modify the bcm91480b_init.S to change this speed if you need to.
+
+* Fixed some problems in the flash engine and flash driver that were
+  introduced in 1.2.4.  These problems were mostly related to 5836 designs
+  and 16-bit flash chips.
+
+* Added some more Broadcom parts to the tables in the PCI scan/display code.
+
+------------------------------------------------------------------------------
+CHANGES SINCE PREVIOUS VERSION (1.2.3)
+------------------------------------------------------------------------------
+
+* The makefiles have been reworked to allow easy selection of SMbus
+  devices, similar to the scheme that is used today for PCI devices.  You
+  can now include a SMBDEVS macro in your board file to list the SMbus
+  devices that should be built for your board.
+
+* Since the conversion to "all 32 bit" versions, a new bug has been
+  introduced that was preventing the upper halves of 64-bit registers
+  from being saved when calling into CFE from a 64-bit application.
+  This can prevent 64-bit SMP Linux from booting properly.  This has
+  been fixed (see the macros in arch/mips/commin/include/mipsmacros.h)
+  and the API entry and exception files (apientry.S, exception.S).
+
+* New callouts have been added in init_mips.S:
+
+	CPUCFG_EARLYINIT can override the default board_earlyinit
+	CPUCFG_DRAMINFO can override the default board_draminfo
+	CPUCFG_PREDRAMINIT is new; it is called just before board_draminfo
+		to give the board package a chance to work around bugs or do
+		other preparation.
+
+* The CPU packages have been modified to have a single interface for 
+  dealing with cache ops.  A new include file, cpu_cache.h, has macros
+  and prototypes for cache invalidation and flush routines.  All the
+  device drivers that support noncoherent I/O have been modified to use
+  these macros.
+
+* The BCM1480 boards have had numerous small fixes, including:
+
+   - Basic initialization of certain node controller registers
+   - Better PCI, PCI-X support.  Some basic support for BCM1480
+     parts in device mode has been introduced.  The pci_map_window
+     routines and related calls have been implemented.
+
+* A new environment variable, RESTART, has been added.  If you set this
+  either from a program or permanently, when a program does a soft 
+  restart to CFE, CFE will run the commands in this environment
+  variable.  So, for example, before Linux exits you could set this
+  to restart Linux.
+
+* The PCI vendor and device tables have been reduced in size considerably
+  to save memory.
+
+* The USB code has been reworked to be more resilient to devices being
+  disconnected while they are active.	 
+
+* The USB Ethernet device driver now expects a "stub" device to 
+  be instantiated similar to the USB Serial device.  With this change
+  you can unplug and re-plug a USB Ethernet device and it will
+  use the same device name.
+
+* A new CFE "filesystem" supporting XMODEM transfers has been added.  If
+  configured, you can boot or flash from the serial port using
+  the XMODEM protocol, like this:
+
+	CFE> flash -fs=xmodem uart0:
+
+  At present, only XMODEM CRC mode is allowed.  Non-CRC won't work.
+
+
+* The Flash engine has been modified to handle more combinations of 
+  endianness and 16 vs 8 bit devices.
+
+* The board packages for the Enterprise Switch group's MPC8240 and MPC8245
+  boards (BCM98245CPCI "BMW" and "Mousse") have been added.  These
+  versions can be used on the control processors for certain StrataXGS
+  switch chassis.
+
+
+------------------------------------------------------------------------------
+CHANGES SINCE PREVIOUS VERSION (1.2.2)
+------------------------------------------------------------------------------
+
+This is a minor CFE release.
+
+ * To work around some issues with the fuses on BCM1480 A2 parts, 
+   support for S0 (the original preproduction samples) has been 
+   disabled completely.   If you have a BCM1480 S0 evaluation
+   board or a board with a BCM1480 S0, you should re-enable
+   the conditional compile define _BCM1480_S0_WORKAROUNDS_
+   (see arch/mips/cpu/bcm1480/Makefile).  The most important
+   workaround this enables is the restrictions on available MCLK
+   clock divisors in the S0 parts.  
+
+   [Note that "BCM1480" includes BCM1255, BCM1280, BCM1455, BCM1480,
+   and the other chips in this family.]
+
+ * The BCM1480 DRAM init routine has been improved to handle higher
+   DDR2 DRAM speeds.  The changes are also in the BCM91480B evaluation
+   board init routines.
+
+ * The USB ethernet drivers have been separated out into smaller drivers.
+
+ * A bug in the multiprocessor initialization of the BCM1480 has been
+   corrected that can sometimes cause cache line to be evicted to
+   the flash area.  If this line contains a particular sequence 
+   of bytes, it can switch the flash in to erase, CFI, or programming
+   modes unintentionally.
+
+------------------------------------------------------------------------------
+CHANGES SINCE PREVIOUS VERSION (1.2.1)
+------------------------------------------------------------------------------
+
+ * The test program for the ScanLogic SL11 chip on the BCM1250CPCI
+   and BCM91125PCIX boards has been rewritten.  Eventually, this chip
+   will have the same support as the OHCI drivers and thus support 
+   booting from USB thumb drives, USB consoles, etc.
+
+ * Lots of infrastructure improvements in the USB code, mostly 
+   changes to the device infrastructure and updates to the serial
+   driver to support more bizarre USB serial ports.
+
+ * The USB Ethernet driver has been greatly improved.
+
+ * BCM91480A/B board support has been greatly improved.  The config
+   switch settings have been standardized, with new constants
+   added to map the switches to their functions.
+
+ * Both PCMCIA channels are now supported on the BCM91480B board.
+
+ * On the BCM91480B, Config switch settings can now be used to selectively
+   disable extra CPUs, allowing the BCM91480B board to behave as if it
+   had a BCM1280 CPU stuffed on it.
+
+ * Numerous improvements to the BCM5836/BCM4704 support, particularly
+   in the ara of PCI.
+
+ * Header files have been updated for the BCM1480 family.  Customers should
+   use the new header files in their applications.
+
+ * CFE was not restoring the KX bit setting in the status register
+   when the user API was invoked.
+
+ * The exception message (crash dump) now includes the CPU number.
+
+ * The exception handlers were not being restored properly on a soft
+   restart to CFE (for example, when you reboot from Linux).  This
+   causes trouble if you want to boot again without a hardware reset.
+   This problem has been fixed.
+
+ * Many, many improvements to the BCM1480 DRAM init routine.  Customers 
+   should definitely take the new version if possible.   Timing 
+   calculations have been improved, and more interleaving options 
+   are now supported.
+
+ * The BCM1480 packet manager now has some test commands and example code
+   to initialize the high speed ports.
+
+ * The BCM1480 HyperTransport interface now supports a new environment
+   variable, LDT_LINKWIDTH, to configure the width of the interface to
+   8 or 16 bits.  The default is 16 bits.
+
+ * The BCM1250 DRAM init routine has been improved to calculate 
+   the tRCw, tRCR, and tCwCr values in a more consistent way. 
+
+ * The flash drivers have been updated to work properly in 16-bit mode
+   on the BCM5836/4704 processors, for big or little endian operation.
+
+
+------------------------------------------------------------------------------
+CHANGES SINCE PREVIOUS VERSION (1.1.1)
+------------------------------------------------------------------------------
+
+  [Note: This ia another MAJOR new CFE release.  There have been 
+   source file changes to nearly all of CFE's files to re-enable
+   64-bit address support while CFE remains a 32-bit app].
+
+  * MAJOR NEW FEATURE:  64-bit API, 64-bit ELF
+
+    Since CFE can no longer be built as a native 64-bit
+    application due to toolchain changes, special support
+    needed to be added throughout CFE for 64-bit support
+    within the 32-bit version of CFE.  
+
+    *ALL* external pointers (values who could possibly reference
+    data beyond CFE's data segment) are declared as the
+    basic type "hsaddr_t" with access functions and macros
+    in "lib_hssubr.h".  
+
+    Unfortunately, this change affected 100+ source files, including
+    all the device drivers and some API functions.   Since CFE's
+    API allows applications like the Linux kernel to pass 64-bit
+    pointers (for example, console output or starting the other
+    CPUs), CFE needs to pass all 64 bits of the pointers around.
+
+    There are two new macros, PTR2HSADDR and HSADDR2PTR, that 
+    are used to convert between hsaddr_t and regular pointers
+    when you know that the pointer is within CFE's data segment.
+    There are also two variants of memcpy, called
+    hs_memcpy_to_hs and hs_memcpy_from_hs, to copy data to/from
+    buffers that might be outside CFE's data segment.
+
+  * More BCM1480/1455/1280/1255 support.
+
+    The include files and board support packages have been improved
+    as we continue to test the early samples.
+
+    Some typos have been found and fixed, particularly in the
+    packet manager headers (bcm1480_hr.h, bcm1480_pm.h)
+
+  * BCM1480 DRAM init routine improvements.
+
+    Support for DDR2 SPD's has been added.  In addition, the
+    timing calculations have been improved for DDR2 memories.
+
+    DDR2 memory init tables now require a "distance" parameter 
+    that specifies the relative location of a chip select 
+    along the memory bus.  This is used to determine which 
+    chip has on-die termination (ODT) enabled.
+
+    Support for channel interleaving (64-bit channels only) has
+    been added.
+
+  * Support for the BCM91480B evaluation board has been added.
+
+    This is an ATX-style 1480 eval board with DDR2 memory.    
+
+  * Bug Fix:  The BCM1250/BCM1480 ethernet driver was not
+    waiting long enough after configuration for the PHY to 
+    settle, particularly at gigabit speed.  As a result, it
+    often took two tries to get an address from the DHCP
+    server.  This has been fixed by starting the PHY earlier.
+
+  * The chip type detection code and display routines have
+    been substantially rewritten.  Hopefully they make sense now.
+
+  * Lots of old uses of __long64 have been removed.  They are
+    no longer relevant
+
+------------------------------------------------------------------------------
+CHANGES SINCE PREVIOUS VERSION (1.0.40)
+------------------------------------------------------------------------------
+  [Note: This is a MAJOR new CFE release.  There have been source file
+   changes to nearly all of CFE's files to accomodate new tools
+   and a new relocation method.  On the whole, the source changes are 
+   minor but there are a lot of them!]
+
+  * MAJOR NEW FEATURE:  New relocation method
+
+    CFE's relocation method has been changed to use System-V PIC format
+    instead of the old "embedded-pic".  The old method is deprecated 
+    in current GCC versions and will be deleted entirely in the future,
+    so CFE had to be modified to relocate without using embedded-pic.  
+    To make this work, the low-level startup code, many of the macros
+    in the code, and several other places have been touched or
+    rewritten.  The include file "cfe.h" must now be _before_ other
+    include files to set up certain macros properly.
+
+  * No more 64-bit versions
+
+    Since the SVR4 PIC toolchain does not support relocatable 64-bit
+    libraries, there are now no more 64-bit native versions of CFE.
+    (pointers and longs are 32 bits, and long longs are 64 bits).
+
+    CFE now runs with KX set in the status register all the time.
+
+    You can still access 64-bit data with the "d", "e", "u",
+    and other commands.  To make this work, the old "lib_hssubr.S"
+    (hyperspace subroutines) has been ressurected.
+
+    NOTE: This has temporarily broken loading 64-bit ELF files, we will
+    revisit this in a future release.
+
+  * Processor and chipset support for the BCM1480/BCM1455/BCM1280/BCM1255
+    chips.  Look in the arch/mips/chipset/sibyte and arch/mips/cpu/bcm1480
+    directories for the new files.  The include files are believed 
+    to be accurate as of the current user's manual revision and errata.
+
+    Notes specific to the 1480 release:
+
+	- In general, the 1480 package is very new and subject to
+	  rapid change as we continue to check out the chip.
+        - The DRAM initialization code is still new and has some
+          missing features, including SPD support for DDR-II.
+        - 4-channel 32-bit mode has not been tested.
+
+  * Preliminary board support package for the BCM91480A, the
+    eval platform for the BCM1480 and BCM1280 chips.  This 
+    package is for evaluation use only, there will be another
+    CFE release for this board once the eval platforms are
+    generally available.
+
+  * Processor and chipset support for the BCM5836 low-end MIPS32
+    processor.  Look in the arch/mips/chipset/bcmsb and arch/mips/cpu/bcmcore
+    directories for the new files.  
+
+  * Board support package for the BCM91125CPCI
+    module has been added.  This is an 1125-based CPCI card.
+
+  * Board support package for the BCM95836CPCI
+    module has been added.  This is an 5836-based CPCI card.
+
+  * Board support packe for the BCM91125PCIX has been added.  This
+    is an ATX board with a BCM1125 and an HT-to-PCIX bridge.
+
+  * The include files for the BCM1255, BCM1280, BCM1455, BCM1480
+    are now in the arch/mips/chipset/sibyte/include area.   Preliminary
+    support for these new chips have been added to appropriate
+    areas in the source tree (dram init, etc.).   More updates
+    in this area for the next version.
+
+  * Some preliminary support for compressing CFE has been added.  It is
+    not fully baked yet, but customers can examine it to see if it
+    will be useful.  With this feature, most of CFE is compressed
+    via gzip and a boot-loader-loader decompresses the firmware
+    and transfers it to memory.  Look for "ZipStart"
+
+  * The flashop engine (assembly stub used to batch flash commands)
+    has been updated to support Intel flash buffered write commands.
+    This should dramatically improve write speed when using Intel
+    flash parts.
+
+  * The kit generation procedures we use to make the CFE kit files have
+    been included in the release/ directory of CFE.  You can use these
+    procedures to package your own CFE releases.
+
+  * The Algorithmics P5064 and P6064 boards have been removed.
+
+
+------------------------------------------------------------------------------
+CHANGES SINCE PREVIOUS VERSION (1.0.38)
+------------------------------------------------------------------------------
+
+  [Note: It's been a while since a new CFE release was made, so
+   customers should also read the 1.0.38 differences in the section
+   after this one.]
+
+  * Support for the new BCM91125F evaluation board has been introduced
+
+  * In anticipation of the BCM1x80/BCM1x55 chips, the SiByte-specific
+    files have been moved into their own "chipset" directory.
+    The Ethernet controller driver, UARTs, and other common modules that used 
+    to live in arch/mips/cpu/sb1250 are now in arch/mips/chipset/sibyte
+
+  * The 'tiny' board target (minimalistic BCM1250 board) has been
+    fixed so that it builds again.
+
+  * The SMBus interface has a new level of abstraction.  If your code
+    uses the BCM1250 SMBus device drivers in CFE, you may need
+    to make some changes to your board_device_init() routine
+    (see the code in the SWARM or Sentosa port for an example).  
+    Basically, before devices are instantiated you should be
+    sure you create SMBus buses as follows:
+
+	cfe_add_smbus(&sb1250_smbus,A_SMB_BASE(0),0);
+	cfe_add_smbus(&sb1250_smbus,A_SMB_BASE(1),0);
+
+    Then instantiate your devices "normally."  SMBuses get numbered
+    from zero in the order they are instantiated via cfe_add_smbus.
+
+    The new SMBus code moves all the SMBus-device-specific routines
+    into processor/architecture independent places and leaves
+    the actual SMBus protocol code in the host chip-specific 
+    area.  You can now write bit-bang SMBus host routines
+    or use other SMBus host controllers and re-use CFE's 
+    pre-existing device drivers for nvram/tod/temperature chips.
+
+  * The Sentosa board's memory timing has been increased to run
+    the memory at 133MHz (max speed depending on core clock)
+
+  * M-Systems(tm) DiskOnChip(tm) support.  If you have signed the
+    NDA with M-Systems and have access to their DiskOnChip 
+    boot driver kit (BDK), CFE can access configured M-Systems
+    flash devices.  You need to provide certain files from the
+    M-Systems BDK and place them in the cfe/msys directory,
+    then set CFG_MSYS=1 in your Makefile.
+
+  * The code in the BCM1250 cache init routines for supporting the
+    ancient A0..A7 parts with "binned" caches (preproduction parts
+    with partial caches) has been removed, since the BCM1250 is
+    in full production now.  
+
+  * BCM1250 Pass1 support has been disabled.
+
+  * The 'mkflashimage' program should now work properly when compiled
+    under Cygwin.
+
+  * New device drivers for the DS1743 RTC/NVRAM, Intel i82559 Ethernet,
+    RealTek rtl8139 Ethernet, and a "C" version of the flash update engine.
+
+  * The PromICE console driver lets you specify whether your PromICE
+    is connected in direct mode (write line attached) or not,
+    instead of using a compile-time constant.
+
+  * The Ethernet routines have been rearranged to move common packet
+    manipulation, address parsing, and other non-device routines into
+    a common place.
+
+  * The PCI/HyperTransport init routines for the BCM1250 have been
+    improved to handle additional topologies and configurations.
+
+
+------------------------------------------------------------------------------
+CHANGES SINCE PREVIOUS VERSION (1.0.37)
+------------------------------------------------------------------------------
+
+  * The BCM1250 memory initialization routine has been updated to
+    calculate tRCD and tRCR/tRCW more accurately when the
+    parameter is not supplied by the SPD.  Even if you do not update
+    all of CFE, you should retrofit this change into your CFE if
+    you notice any memory timing problems.
+
+  * The console F12 key macro should work properly now to either
+    repeat the previous command or execute the command in the F12
+    environment variable.
+
+  * TFTP's retries and timeouts are now measured in ticks.  The TFTP
+    timeouts are also stored in globals that you can modify
+    in your board_devs routine.
+
+  * A new user command, "reserve", has been added to reserve memory
+    and not communicate it to the operating system.  So, you could 
+    take a chunk of memory, reserve it, and then boot Linux and
+    Linux would not add that chunk to the boot map.
+
+  * The PCI initialization code has been reworked to break out 
+    machine-dependent and machine-independent stuff more clearly.
+
+  * New drivers have been included for the BCM4401 PCI fast ethernet
+    and BCM570x PCI gigabit ethernet controllers.
+
+  * The NS16550 serial driver has been enhanced to take the crystal
+    frequency (NS16550_HZ) as a parameter.   Good for boards that use
+    nonstandard clocks or have multiple different 16550's.
+
+  * The various "cpu_config.h" files have CPUCFG_ARCHNAME and
+    CPUCFG_ELFTYPE defined to break out the processor architecture and
+    ELF header type into cpu-specific include files.
+
+  * The Algorithmics P5064 and P6064 ports now compile again, but are
+    probably broken.  Assume you'll have to make changes if you want to
+    get these working on your hardware!
+
+
+------------------------------------------------------------------------------
+CHANGES SINCE PREVIOUS VERSION (1.0.36)
+------------------------------------------------------------------------------
+
+  * The Makefile for the BCM1250CPCI version has been modified
+    to support building dual-endian versions of CFE.
+
+  * Some cleanup has been done in the source files in preparation
+    for the release to the public (non-NDA) web site.
+
+  * The PCI enumeration code has been modified to deal with 
+    more than one host "port".  To do this, the tag format has
+    been changed slightly - routines that include pcivar.h
+    would probably need some changes.
+
+  * A typo in lib_physio.h has been fixed - writing 64-bit values
+    to 64-bit uncached addresses was being done with a 32-bit store. 
+
+  * The most recent BCM1250 system include files have been incorporated
+    into the source tree.
+
+  * sbmips.h (MIPS processor stuff) has been enhanced to include a 
+    bunch of macros and inlines for accessing CP0 registers.
+
+  * FCRAM support in the DRAM init routines has been improved.
+
+  * The startup messages now recognize Rev.C silicon.
+
+  * A new include file, endian.h, contains the "truth" about the 
+    endianness (for use by #ifdefs in the code).
+
+  * Device drivers for PCI Ethernet controllers and other devices have
+    been modified to use common macros for address manipulation.
+
+  * The makefile now recognizes a new "CHIPSET" directory, to go
+    along with "CPU" and "BOARD" - future versions of CFE will
+    show some device driver files moving into this area of
+    the tree (under arch/mips/chipset) so that, for example,
+    the BCM14xx and BCM12xx console drivers can live in one place.
+
+  * The command processor has been hacked yet again to make it behave
+    more like a shell.  In particular, quoting behaviour should once
+    again be working.   
+
+------------------------------------------------------------------------------
+CHANGES SINCE PREVIOUS VERSION (1.0.35)
+------------------------------------------------------------------------------
+
+  * The license has been modified to be "GPL compatible."  This
+    means that you should be able to incorporate parts of CFE
+    into a GPL'd program without license hassles.  
+
+  * The Hypertransport initialization code in CFE now supports both
+    the LDT 0.17 and the HyperTransport 1.03 styles of fabric
+    initialization.  There is a new flag, ldt_rev_017, that can be
+    included in the value of the PCI_OPTIONS environment variable.  If
+    that flag is set, the 0.17 initialization procedure will be used.
+    Otherwise, the 1.03 procedure is followed.  There is also a new
+    configuration option, CFG_LDT_REV_017, that sets the default value
+    of the ldt_rev_017 attribute.  This option is specified in the
+    Makefile.
+
+    You must choose the initialization procedure properly, either by
+    default or by making a permanent assignment to PCI_OPTIONS, to
+    match the type of devices present on your HyperTransport chain.
+    If the choice is incorrect, the system can fail to initialize the
+    Hypertransport links and may hang at startup while attempting to
+    do so.
+
+    If set to '1', fabric initialization will be appropriate for
+    the HyperTransport 0.17 specification.  The SP1011 HT->PCI bridge
+    can only operate in 0.17 mode, and standard Makefiles for boards
+    with SP1011s make this the default.
+
+    If set to '0', fabric initalization will be approprate for the 1.01
+    (and later) specification.  The PLX 7520 HT->PCI-X bridge can only
+    operate in this mode.  Standard Makefiles for boards with only HT
+    expansion connectors make this the default.
+
+    Either setting is acceptable when communicating with another
+    BCM1250 in a double-hosted chain, but both ends must agree.
+
+  * CFE now supports initialization of HyperTransport fabrics that
+    include the PLX 7520 HT->PCI-X chip.  For link speeds other than
+    200 MHz, the 1.03 initialization option (above) must be used.
+
+  * The BCM1250CPCI port had incorrectly programmed the GPIO interrupt
+    mask register, preventing Linux from being able to use the on-board
+    IDE interface.  This has been fixed.
+
+  * Some 64-bit/32-bit issues have been fixed in the "flashop engine"
+    that is used for programming flash devices.  In particular, 64-bit
+    ops are used when manipulating addresses in 64-bit mode.
+
+  * The default values for the drive strengths and skews for the
+    DRAM controllers have been modified to be more reasonable for
+    currently shipping parts.    
+
+  * The workarounds for known bugs in the BCM1125's memory controller
+    have been made a run-time check.
+
+  * The command line parser has been substantially rewritten to be more
+    shell-like in its expansion of environment variables.  In particular
+    you can now set an environment variable to include multiple CFE
+    commands.  
+
+  * The command line parser supports "aliases" - if the first word of
+    a command line matches an environment variable, it will be expanded
+    even if there is no preceding dollar sign.  For example, you can
+    now do:
+
+	CFE> setenv start "ifconfig eth0 -auto; boot -elf server:myprogram"
+
+    and later just type "start" to start the program.  
+
+    PLEASE NOTE: If you define an alias that has the same name as a built-in
+    command, you will need to quote the command to prevent the expansion
+    from occuring:
+
+	CFE> setenv e "ifconfig eth0 -auto"
+	CFE> e			(this will run the "ifconfig" command)
+	CFE> 'e'                (this will run the "edit memory" command)
+
+  * By enabling an option, CFG_URLS in your bsp_config.h file, CFE can
+    now process file names in URL syntax.  This option defaults to OFF 
+    to use the current syntax.  When enabled, you can use boot files
+    in the following format:
+
+	CFE> boot -elf tftp://servername/path/to/filename
+	CFE> boot -elf fat://ide0.0/path/to/filename
+	CFE> boot -elf rawfs://flash0.os
+
+    This syntax works with the "boot", "load", and "flash" commands.
+
+  * You can now boot from an HTTP server by enabling "CFG_HTTPFS" in
+    your bsp_config.h file.  This also requires TCP support (define CFG_TCP).
+
+	CFE> boot -elf -http servername:path/to/binary		(old syntax)
+	CFE> boot -elf http://servername/path/to/binary		(URL syntax)
+
+
+------------------------------------------------------------------------------
+CHANGES SINCE PREVIOUS VERSION (1.0.34)
+------------------------------------------------------------------------------
+
+  * CFE now builds using the "sb1-elf" toolchain by default.  
+    It will still build using mips64-sb1sim, but it is recommended
+    that you switch to the new toolchain.
+
+  * The BCM1125E port now uses the SPD EEPROM to store memory
+    parameters.  If the EEPROM is not programmed, a default memory
+    table will be used.
+
+  * For versions of the 1250 and 1125 that are step A0 (anything but
+    pass1) or newer,  PCI code now configures HyperTransport 
+    interrupts for level triggered mode.  For older versions, 
+    configuration is for edge triggered mode as before.
+
+  * If CFE is used to load an operating system such as Linux that
+    relies on CFE's configuration of interrupts, be sure to use only
+    versions of that operating system that can deal with level
+    triggered HyperTransport interrupts (must issue EOIs).
+
+  * Exceptions now display the CAUSE field symbolically, displaying
+    the exception name along with the CAUSE register value.
+
+  * A number of fixes have been made to the SB1250 include files,
+    including the addition of BCM1125 DMA features and some additional
+    constants for the drive strength registers.
+ 
+  * Some additional test code has been placed in the firmware's
+    ethernet driver for testing FIFO mode.
+
+  * The memory initialization routines have had an off-by-one 
+    error corrected that can cause the memory to be run slower
+    than the rated maximum.
+
+  * The memory initialization routines will not operate properly
+    on the BCM1125 without recompiling (the #ifdef _SB11XX_ is gone)
+
+  * The memory initialization routines were losing precision
+    in the calculation of tCpuClk, so the calculation has been
+    adjusted to avoid the precision loss.
+
+  * The #ifdef _SB11XX_ in the l2 cache routines is no longer
+    necessary.
+
+  * The ethernet driver and the PHY commands now preserve the state
+    of the GENC pin while doing MII commands.
+
+  * The command line recall should work more like you expect - if you
+    recall the most recent command, it is NOT added to the history,
+    and if you recall any previous command, it IS added.
+
+  * Some fixes have been made to the USB ethernet drivers.
+
+  * The flash driver now handles some broken AMD flash parts
+    better (some AMD parts have reversed sector tables,
+    that need to be sorted in the other order before they
+    can be used).
+
+
+
+------------------------------------------------------------------------------
+CHANGES SINCE PREVIOUS VERSION (1.0.32)
+------------------------------------------------------------------------------
+
+  * Support has been included for the BCM1125 and the errata
+    that is relevant for the firmware.  In particular, there are
+    workarounds for a couple of memory controller issues that affect
+    the BCM112x (and only the 112x, this does not affect the BCM1250).
+
+  * The system include files have been updated to include constants and
+    macros that are useful for BCM1125 users, including support for the
+    new Ethernet DMA features, data mover features, etc.
+
+  * The BCM1250CPCI port now enables memory ECC by default.
+
+  * Autoboot support.  CFE now has a new feature to allow a board package
+    to supply a list of boot devices to try.  For example, you can now
+    say "first try PCMCIA, then the IDE disk, then the flash device,
+    then the network."  You configure the autoboot list in your
+    board_devs.c file by calling "cfe_add_autoboot" one or more times
+    (see swarm_devs.c for an example).  
+
+    You can then either use the "autoboot" UI command (put it in your
+    STARTUP environment) or call cfe_autoboot() at the end of
+    board_final_init() to enable automatic bootstrap. 
+
+    Additional documentation will be placed in the manual for this, but
+    is not there at this release.
+
+  * setjmp has been renamed "lib_setjmp" to prevent future versions 
+    of GCC from doing things that assume how setjmp work.
+
+  * The include files have been modified to allow you to select which
+    chip features will be present.  This can help you avoid using 
+    features that your chip does not have, such as using pass2 features
+    on a pass1 chip, etc.  See the comments in include/sb1250_defs.h
+    for an explanation of the possible selections.  The default is
+    to include all constants for all chips.
+
+  * The ethernet driver now preserves the value of the 'genc' bit
+    on the MDIO pins.  Previously it would always set this bit to zero.
+
+  * The DRAM init routines (and some other places) let you specify the
+    reference clock in hertz via SB1250_REFCLK_HZ.  The reference clock
+    affects timing calculations, so if your reference clock is very
+    nonstandard, you should change this.
+
+  * The DRAM init routines include support for BCM112x processors.
+
+  * The DRAM init routine will now automatically disable CS interleaving
+    on large memory systems that use more thena 1GB of memory per
+    chip-select.
+
+  * The ARP implementation was sending incorrect response messages to
+    inbound ARP requests.  This fix should easily apply to
+    older versions of CFE.  (see net/net_arp.c)
+
+  * The DHCP implementation makes more information available after
+    configuring from a DHCP server.  
+
+    Parameter #130 is a CFE extension that will be placed in the "BOOT_SCRIPT"
+    environment variable.
+
+    Parameter #133 is a CFE extension that will be placed in the "BOOT_OPTIONS"
+    environment variable.
+
+    You can use these variables any way you like.  For example, you could
+    set up an autoboot to read a batch file whose name is specified in
+    the DHCP server's configuration file.  Individual hosts can then
+    have their own private scripts.
+
+  * PCI/LDT configuration has had numerous changes; among them the removal
+    of many device and vendor codes from the text database.  This 
+    reduces CFE's size significantly, but you won't get a pretty
+    message when you install your 8-year-old obscure PCI mouse accelerator
+    anymore.
+
+
+------------------------------------------------------------------------------
+CHANGES SINCE PREVIOUS VERSION (1.0.30)
+------------------------------------------------------------------------------
+
+  * The memory initialization routines have been improved.  The
+    r2wIdle_twocycles bit is now always set to work around a silicon
+    bug, and two bits in the include files (sb1250_mc.h) were
+    reversed.  The new draminit module does a better job at 
+    calculating timing and will take into account a new global
+    parameter (tROUNDTRIP) which represents the total round trip
+    time in nanoseconds from the pins on the 1250 out to the 
+    memory and back.  Using this new module is HIGHLY RECOMMENDED.
+
+  * The 'memconfig' program has been improved - it uses the actual
+    copy of draminit and can be used to calculate memory
+    parameters outside of CFE to be sure they make sense.
+    Use "memconfig -i" for interactive mode.
+
+  * The UART driver for the console has been changed to include a fix
+    for errata 1956, which can cause the baud rate register to be
+    written with bad data, particularly at high "odd" (ending in 50,
+    like 550, 650, 750) speeds.
+
+  * The flash driver has been rewritten.  The new driver is called
+    "newflash" and the implementation is in dev/dev_newflash.c.
+    The new flash driver is smaller and simpler than the old one, and
+    supports some new features, including:
+
+       - Partitioning - you can instantiate sub-flash devices by breaking
+	 a large flash part into pieces, which will have names such
+	 as "flash0.boot", "flash0.os", "flash0.nvram", etc.
+
+       - Support for using flash as NVRAM is much improved.  You use
+ 	 the above partitioning scheme to create a partition for the
+ 	 NVRAM and attach the NVRAM subsystem to that.  There is no
+	 "hidden" reserved sectors anymore.
+
+       - New flash algorithm code - all of the flash operations are
+ 	 in a single assembly file, dev_flashop_engine.S, which is 
+	 relocated to RAM when CFE is running from the flash.  
+
+       - The probe code has changed.  You will need to specify the 
+	 bus width (usually 8 bits for BCM1250 parts) and the flash 
+ 	 part width (16-bits or 8-bits).  You would specify 16 bit flash
+	 widths if your 16-bit part is in "8-bit mode.".
+
+    The old flash driver (dev_flash.c) is still there for use by older
+    firmware ports.
+
+  * The memory enum API has been improved to let you enumerate all
+    memory blocks (not just available DRAM).  You can add your own
+    regions to the arena during initialization and query them from
+    applications.
+
+  * There is a new device driver for the National Semiconductor
+    DP83815 PCI Ethernet chipsets.  It is getting hard to find
+    Intel/Digital DC21143 cards, this is the replacement.
+
+  * The concept of "full names" and "boot names" has been removed.
+    All device drivers now have only one name.
+
+  * Support for the RHONE board is now included in the source 
+    distribution and binaries are on the web site.  The RHONE is
+    a SENTOSA-like board that includes a BCM1125 processor.
+
+  * Support for the BCM1250CPCI board is now included in the source 
+    distribution and binaries are on the web site.  The BCM1250CPCI is
+    a SWARM-like board that fits into a CompactPCI chassis.
+
+  * Routines to display information about the CPU type have been added
+    to the common BCM1250 sources.  Most board packages now call this 
+    during initialization to print out CPU revision information.
+
+  * A number of the commands that used to start "test" such as 
+    "test flash" have been either removed or relocated to 
+    other files (most of these things lived in "cfe_tests.c").
+    These were old test routines used to check out internal 
+    CFE features are are no longer needed.
+
+  * The "memorytest" command (in 64-bit firmware versions) has been
+    enhanced slightly to let you specify the cacheability attribute.
+    -cca=5 will do cached accesses, which promotes lots of evict
+    activity.  
+
+  * The include files have been updated in a few places to reflect
+    the user's manual.
+
+  * A USB host stack is now available in the firmware.  The host stack
+    works with OHCI-compatible host controllers and supports USB hubs,
+    keyboards, some mass storage devices, a serial port device, and
+    a couple of Ethernet controllers.  It's there mostly for
+    your amusement, we don't really support this actively.
+
+  * The VGA Console system has been improved to include support for the
+    USB keyboard.  It is now possible to build a version of CFE that
+    will display on a VGA and take its input from a USB keyboard
+    (no serial port!).  Linux can be compiled to "take over"
+    the VGA and keyboard, so you can almost have that "PC" experience
+    you've always wanted with your SWARM.  (or not.)   Like the USB
+    support, it's for your amusement, we don't support this actively.
+
+
+------------------------------------------------------------------------------
+CHANGES SINCE PREVIOUS VERSION (1.0.29)
+------------------------------------------------------------------------------
+
+  * A missing routine in init_ram.S has been added.  This is required
+    for the CFG_RAMAPP version (a RAM version of CFE you can load from a
+    TFTP server).
+
+  * A simple cache error handler has been added to the firmware.
+
+  * There is a new defined, _SERIAL_PORT_LEDS_ that you can put in the
+    swarm_init.S file (or copy into your own board's init routines) to 
+    send the LED messages to the serial port.
+
+------------------------------------------------------------------------------
+CHANGES SINCE PREVIOUS VERSION (1.0.27)
+------------------------------------------------------------------------------
+
+  * A simple TCP stack has been added to the firmware.  If you define
+    CFG_TCP=1, this stack will be added to the firmware build.  
+    Note that this stack is unfinished, largely untested,
+    and is not meant to provide high performance.  As of this version,
+    several important TCP features are not implemented, including
+    slow-start, fast-retransmit, round-trip-delay calculation,
+    out-of-band data, etc.  It works well enough for simple interactive
+    applications (a miniature rlogin client is included) and may be
+    sufficient for a simple httpd.  This stack will be improved over
+    time; it is meant for amusement purposes only at this time.
+
+  * Support has been added for the ST Micro clock chips present
+    on newer SWARM (rev3) boards.  This chip replaces the Xicor X1241
+    on previous versions.  The environment variables are now
+    stored in a second Microchip 24LC128 on SMBus1.
+
+  * A new bsp_config.h option, CFG_UNIPROCESSOR_CPU0, has been
+    added.  If this is set to '1' and CFG_MULTI_CPUS=0 (uniprocessor mode)
+    then the firmware will switch the CPU into "uniprocessor CPU0"
+    mode, making it look more like an 1125 (it will actually report
+    itself as an 1150, since 512KB of L2 cache are available).
+
+  * Moved the exception vectors into RAM.  For relocatable versions
+    of CFE, the exception vectors are now in RAM.  Previously, 
+    exceptions were handled by the ROM version whether or not the
+    firmware was relocated, causing all sorts of problems, including 
+    running the wrong code after an exception.  As a result, CFE is much
+    more robust now at handling exceptions when the GP register 
+    has been trashed, since it can recover the GP value from a low-memory
+    vector.  The PromICE (BOOTRAM) version does not use RAM exception 
+    vectors.  This change also paves the way for building versions
+    of CFE that include a real interrupt handler, should that be required.
+
+  * The exception register dump now includes the register names as
+    well as the numbers.
+
+  * Support has been added to the Ethernet driver for the quirks of the
+    BCM5421 PHY (the quirks only affect A0 silicon).
+
+  * If you run the multiprocessor version of CFE on a single-processor
+    chip (for example, a 1250 that has been restarted in uniprocessor mode),
+    it will not hang when starting the secondary core.  Error codes will
+    be returned to applications that attempt to start the secondary
+    cores.
+
+  * The cache operations now include routines for invalidating  
+    or flushing ranges.  This is of limited use on the 1250.
+
+  * A simple cache error handler has been added.  It will display 
+    'Cerr' on the LEDs.
+
+  * The DRAM init routines now have better support for large memory
+    systems, using an external decoder on the chip select lines.
+
+  * Support has been added to the flash driver for 16-bit Intel-style
+    flash parts, and "burst mode" on the pass2 generic bus interface.
+
+  * The X86 emulator in the VGA init code has been enhanced to include
+    some previously unimplemented instructions.
+
+
+------------------------------------------------------------------------------
+CHANGES SINCE PREVIOUS VERSION (1.0.26)
+------------------------------------------------------------------------------
+
+  * The memory initialization code has been dramatically improved.  
+    It now supports calculating all of the timing parameters using
+    the CPU speed and the timing data in the SPD ROMs on the DIMMs.
+    You can also specify this information from the datasheets for
+    systems with soldered-down memory.
+
+    Better support has been added for non-JEDEC memory types
+    such as FCRAMs and SGRAMs, and this information is also stored
+    in the "initialization table."
+
+    Systems with more than 1GB of physical memory are now supported 
+    correctly by the dram init routines.  The MC_CS_START/END registers
+    were being programmed incorrectly.  A limitation of the current
+    design is that memory DIMMs must not be broken across the 1GB
+    line (for example, in MSB-CS mode, do not install a 512M DIMM,
+    a 128M DIMM, and a 512M DIMM). 
+
+    NOTE: TO MAKE THIS CHANGE, COMPATIBILITY WITH OLD DRAM INIT
+    TABLES HAS BEEN BROKEN!
+
+    You should re-read the CFE manual for information about the new
+    DRAM init table format, which now contains multiple record types
+    to describe memory channels, chip select information, timing
+    information, and geometries.   As more features are added to
+    the memory init routine in the future, new record types can be
+    added.
+
+  * An bug in the L2 cache flush routine has been fixed
+    that might cause some boards to hang at the "L12F"
+    display on the LEDs.  The bug can occur depending on
+    the previous contents of the cache (presumably garbage).
+    In rare circumstances, an ALU overflow can occur because
+    of an incorrect 'dadd' instruction that should have been 'daddu'    
+
+  * All of the BSPs have been updated to support the new memory init
+    routine.  This involves changes to the bsp_config.h files and
+    the various board_init.S files.
+
+  * The memory initialization routine now returns the memory size
+    in megabytes, not bytes.  This prevents overflows on large memory
+    systems using 32-bit firmware.
+
+  * An L2 cache diagnostic is now included.  It is only run for
+    pass2 parts, since the tag format has changed.  If a quadrant
+    of the cache fails the diagnostic, it will be disabled.
+
+  * Support for downloading binaries to SENTOSA boards over the PCI
+    bus is now included.   Enable the CFG_DOWNLOAD parameter 
+    in the makefile to add the required object files and 
+    source.  See the manual for more information about how to
+    use this feature.
+
+  * A better (but still not ideal) memory diagnostic is included 
+    in the 64-bit firmware.  The "memorytest" command will 
+    test all memory not used by CFE.
+
+  * The Ethernet interface will be reset when an OS like Linux
+    exits.  In previous versions Linux would not probe
+    the Ethernet if the kernel was restarted, since the
+    Ethernet address register was not reset.
+
+  * Numerous improvements have been made to the LDT configuration
+    routines.
+
+  * The real-time clock driver for the ST Micro part used on the
+    SENTOSA boards is now included.
+
+  * It is possible to build a variant of CFE that runs in DRAM
+    (to be loaded like an application program) by setting the
+    configuration parameter "CFG_RAMAPP=1" in your Makefile.
+    When this option is used, the resulting CFE binary
+    skips the CPU and DRAM initialization, but continues to install
+    its device drivers.  You can use CFE like a big runtime 
+    library or as a framework for diagnostics or other small apps.
+
+------------------------------------------------------------------------------
+CHANGES SINCE PREVIOUS VERSION (1.0.25)
+------------------------------------------------------------------------------
+
+  * More improvements to the directory structure, moving architecture-specific
+    code and macros into appropriate subdirectories.
+
+  * The new "Sentosa" evaluation board is now a supported target.
+
+  * More macros to customize 32 vs 64-bit implementations  For example,
+    certain CPU-specific things like ERET and hazard avoidance have
+    been moved to each CPU's cpu_config.h file.
+
+  * For the SWARM target, you can now build a "bi-endian"
+    firmware image.  This actually contains two different
+    versions of CFE with some magic code at the exception
+    vectors to transfer control to the appropriate version
+    depending on system endianness.  See the 'biend' target 
+    in swarm/Makefile, arch/mips/common/include/mipsmacros.h,
+    arch/mips/common/src/init_mips.S, and the documentation.
+
+  * The "filesystem" calls have been moved into cfe_filesys.c and are 
+    now functions, not macros.  There is a 'hook' facility to allow
+    you to intercept I/O calls to do preprocessing on data received
+    from the filesys.
+
+  * A 'hook' has been created for zlib (compressed file support).  If you
+    compile with CFG_ZLIB=1 in your Makefile, CFE will support the
+    "-z" switch on the 'boot' and 'load' commands.  This can be used
+    to load compressed binaries, elf files, and s-records.
+
+  * A new 'build' directory has been created.  This directory and
+    its subdirectories will contain the makefiles and object file areas
+    for supported builds.  You can create your own directories in there
+    for your ports, and this should ease merge headaches.
+
+  * The 'dump', 'edit' and 'disassemble' commands now gracefully
+    trap exceptions that occur when you mistype addresses.  CFE will no
+    longer reboot in these cases.  Over time we'll use this feature
+    to catch more exceptions.
+
+  * The "-p" (physical) switch for the dump, edit, and disassemble 
+    commands now makes uncached references to the addresses you specify.
+    It used to make cached references.
+
+  * Non-relocatable builds work again.  There was a bug in one of the
+    macros used in init_mips.S
+
+  * A new include file, sb1250_draminit.h, has been created to hold
+    structures and constants for the DRAM init code.  For example,
+    the DRAMINFO macro, which was duplicated in all the board packages,
+    has been moved here.
+
+  * The DRAM init code now uses the upper bit (bit 7) of the SMBus
+    device address to indicate which SMBus channel the SPDs are on.
+    this way you can use both SMBus channels for SPD ROMs.  There
+    are macros in sb1250_draminit.h to take apart the SMBus
+    device ID into the channel # and device.
+
+  * The DRAM init code now supports chipselect interleaving
+    by setting the CFG_DRAM_CSINTERLEAVE value in bsp_config.h
+    You set this value to the number of bits of chip selects
+    you want to interleave (0=none, 1=CS0/CS1, 2=CS0/1/2/3)
+
+  * The flash device has been substantially rewritten.  It now supports
+    Intel-style flash, 16-bit devices (not particularly useful on
+    the 1250), and "manual" sectoring for JEDEC flash devices that
+    do not have CFI support.  Usage of the flash for NVRAM (environment)
+    storage has been substantially improved and tested.
+
+  * There's a #define in the SWARM init module (swarm_init.S) to cause
+    the LED messages to go to the serial port.  #define _SERIAL_PORT_LEDS_
+    if you want to use it.
+
+  * The environment storage format has changed slightly, but 
+    in a backward-compatible way.  It is now possible to store
+    TLVs whose data portions is more than 255 bytes, and a 
+    portion of the TLV code range has been reserved for 
+    customer use. 
+
+  * The VGA initialization code is once again alive on the SWARM board.
+    (In the processs, it got broken for the P5064.  Oh, well.)  There's
+    still no USB keyboard support, but adventurous souls that want to
+    put text out on a VGA display can now do that, at least for some
+    of the cards we've tried.
+
+  * The real-time-clock commands were not properly setting the clock
+    to "military time" mode, affecting the notion of AM and PM.
+
+  * The real-time-clock code has been divided into two pieces,
+    the user-interface and a standard CFE driver.  This is to
+    make things easier when supporting different RTC chips.
+
+  * Calls through the "init table" in init_mips.S that must take place
+    after relocation should use the new CALLINIT_RELOC macro.  this
+    macro makes use of the text relocation amount (mem_textreloc)
+    and the GP register, so care must be taken when using it.  If 
+    you don't use this macro, however, you can end up running the code
+    non-relocated even though you've gone and moved it!  Basically,
+    pointers stored in the text segment (like the init table) are
+    not fixed up, so fixups must be applied manually.
+
+  * The installboot program in the ./hosttools directory has been
+    improved to be actually useful for installing bootstraps on
+    disks.  You can compile this program under Linux and use it to
+    put a boot sector and boot program on an IDE disk, then boot
+    from that disk via CFE.
+
+  * The FAT filesystem code should now properly detect whether the
+    underlying disk has or doesn't have a partition table.  This
+    can be a problem with CF flash cards - they are 
+    formatted at the factory with partition tables, but if
+    reformatted under Windows 2000, the partition table will be 
+    eliminated (more like a floppy).
+
+  * The FAT filesystem code should now correctly find files stored
+    in subdirectories (below the root)
+
+
+------------------------------------------------------------------------------
+SPECIAL NOTE FOR RELEASES STARTING WITH 1.0.25
+------------------------------------------------------------------------------
+
+  * The directory structure of the CFE firmware has changed
+    substantially starting with 1.0.25.  You will notice many 
+    changes, including:
+
+	- Board, CPU, and architecture-specific files are now
+	  in their own directories.
+
+	- The makefile is distributed among several subdirectories
+
+	- Wherever possible, code has been made more generic.
+
+  	- Some user-interface code has been changed.
+
+    These changes are in anticipation of the use of CFE on
+    future Broadcom processors and reference designs.
+
+    Should you wish, you can also make use of this new organization
+    to port CFE to other MIPS designs, and with some difficulty
+    to non-MIPS designs as well.  
+
+  * The build procedure has been modified to allow you to
+    build the object files into an arbitrary directory
+    that is not related to the source directories.
+
+  * The release that contains this reorganization is now 
+    called "1.0.xx"
+
+  * The documentation (docs/cfe.pdf) contains important information
+    related to the change in the directory structure.
+
+  * The code reorganization that goes with this change is not
+    fully complete, so expect some additional changes in the
+    future, including:
+
+	- A way to conditionally remove all the debug/bringup
+	  code specific to the BCM1250
+
+	- New include files to abstract certain aspects of device
+	  I/O, especially for PCI devices
+
+	- A potential change in the default location that the
+	  default CFE builds take place.  They are currently in
+	  their familiar locations to make it easier for
+ 	  you (customers) to incorporate your code.
+
+   * Please let me know if this new directory organization
+     has caused major headaches.
+
+   * The license text has been updated.
+
+
+------------------------------------------------------------------------------
+CHANGES SINCE PREVIOUS VERSION (0.0.23)
+------------------------------------------------------------------------------
+
+    * The directory layout has been substantially modified
+      (see above)
+
+    * The user interface for the memory-related commands,
+      (dump, edit, disassemble) have been improved.  They
+      remember the previous address and length and now
+      have simple switches (-p, -v) to deal with physical
+      and virtual (kernel or useg) addresses.
+
+    * The PCI configuration option has moved from bsp_config.h
+      to the Makefile
+
+    * Some initialization of UI modules have been moved
+      out of cfe_main.c and into board-specific startup 
+      files.
+
+    * The Algorithmics P5064 port has been resurrected to
+      verify the build procedure for other designs.
+
+    * There are new commands to deal with the SWARM board's
+      Xicor X1241 real time clock.  See "show time, set time, set date"
+
+------------------------------------------------------------------------------
+CHANGES SINCE PREVIOUS VERSION (0.0.21)
+------------------------------------------------------------------------------
+
+    * The memory initialization module (sb1250_draminit.c)
+      had a bug where it was not setting the START/END
+      registers properly when using double-sided DIMMs.
+      This is the most important fix in this release.
+
+    * The cfe_ioctl() internal routine now takes the 'offset'
+      parameter for the iocb.  This is used by programs and
+      extensions inside the firmware.
+
+    * The CMD PCI0648 chip has been added to the list of
+      PCI devices probed by the IDE routines.
+
+    * A "vendor commands" file has been added to the
+      vendor/ directory.  Some other changes have been 
+      made to "un-static" variables useful to vendor
+      extensions.
+
+
+    
+------------------------------------------------------------------------------
+CHANGES SINCE PREVIOUS VERSION (0.0.19, 0.0.20)
+------------------------------------------------------------------------------
+
+    * The "C" memory initialization code introduced in 0.0.19
+      has been improved to calculate refresh timing based on
+      CPU speed.  In the future, additional timing parameters will
+      be automatically calculated, particularly for DIMMS.
+      If you have special values for the clock config register you
+      can now specify those in your bsp_config.h file.
+
+    * The PCI subsystem now reads an environment variable PCI_OPTIONS
+      which contains a comma-separated list of flags to control
+      PCI startup.  You can prefix an option name with "no" to
+      turn off an option.  Currently the following flags are defined:
+
+	verbose     	Be very verbose while probing
+	ldt_prefetch	Turn on prefetching from the Sturgeon bridges
+ 
+      The default is to enable ldt_prefetch. 
+
+      Some SWARM boards appear to have a problem related to
+      prefetch across the HyperTransport (LDT) bus.  If you experience
+      DMA failures with devices connected to the PCI slots behind
+      the Sturgeon bridge, you may wish to disable prefetching
+      to work around this issue.   To do this, set the
+      PCI_OPTIONS environment variable as follows:
+
+	CFE> setenv -p PCI_OPTIONS "noldt_prefetch" 
+
+ 	(reboot for changes to take effect)
+
+      Board support packages should be modified to add the NVRAM
+      device and call cfe_set_envdevice() in the board_console_init()
+      routine instead of board_device_init(), since the PCI
+      init code is done before device initialization.
+
+
+    * A number of improvements have been made to the Tulip (Intel 21143)
+      device driver.
+
+    * The SB1250 include files have had some minor fixes.  In particular,
+      the correct values are now used for the interframe gap in the MAC.
+
+    * The SB1250 Ethernet driver was erroneously setting the M_MAC_FC_SEL
+      bit in all full-duplex modes.  M_MAC_FC_SEL is only supposed to be
+      used to force pause frames.
+
+    * The SWARM board package supports Rev2 SWARM boards, which
+      have all 4 configuration bits on the configuration switch (SW2)
+
+    * A better memory test is now part of the 64-bit CFE,
+      see the "memorytest" command.
+
+    * The 'flash2.m4' file was missing from the 0.0.19 distribution.
+
+
+------------------------------------------------------------------------------
+CHANGES SINCE PREVIOUS VERSION (0.0.17, 0.0.18)
+------------------------------------------------------------------------------
+
+    * The memory initialization code has been rewritten in "C".
+      It should be much easier to read and more flexible now,
+      supporting more memory configurations.  In particular,
+      if you have CFG_DRAM_INTERLEAVE set, CFE will automatically
+      use port interleaving if the DIMMs on adjacent channels
+      are of the same type and geometry.
+
+    * There is a new 'save' command that invokes a TFTP client
+      for writing regions of memory to a TFTP server.  
+      You should ensure that your TFTP server is capable of
+      write access before using this feature.
+
+    * The API functions for the cache flush routines have been
+      filled in, so the bitmask in the iocb.iocb_flags field
+      for determining which type of cache flush to do should
+      behave as the documentation indicates.
+
+    * For customers wishing to extend CFE's APIs, a new 
+      directory "vendor/" has been added to the tree.  
+      If CFG_VENDOR_EXTENSIONS is defined, IOCBs above
+      the value CFE_FW_CMD_VENDOR_USE will be redirected to
+      a vendor-specific dispatch area.  You can implement 
+      custom IOCB functions there.
+
+    * On the C3 platform there is some code to send the
+      4-character LED messages to the serial port.  If your
+      design does not include a 4-character LED, you can 
+      incorporate this into your code to see the LED messages.
+
+    * Many improvements have been made to the Tulip (DC21143) driver.
+
+    * The disassembler has been modified to create far fewer
+      initialized pointers, increasing the amount of space
+      available in the GP area.
+
+    * The value in the A1 register for the primary processor
+      startup is now zero.  Eventually you'll be able to pass
+      a parameter here like you can to CPU1.
+
+    * The "-addr" and "-max" switches to the "load -raw" 
+      command now work.
+
+------------------------------------------------------------------------------
+CHANGES SINCE PREVIOUS VERSION (0.0.16)
+------------------------------------------------------------------------------
+
+    * The LDT initialization code has been improved.  LDT 
+      operation should be much more reliable on SWARM
+      boards.
+    * If you set the configuration switch to zero, CFE was
+      still trying to access PCI space on SWARM boards.
+      This has been fixed.
+
+------------------------------------------------------------------------------
+CHANGES SINCE PREVIOUS VERSION (0.0.15)
+------------------------------------------------------------------------------
+
+BUGS FIXED
+
+    * If you don't initialize the PCI bus, CFE was still trying to
+      read configuration space to configure PCI devices.  This has been
+      fixed.
+
+------------------------------------------------------------------------------
+CHANGES SINCE PREVIOUS MAJOR VERSION (0.0.10)
+------------------------------------------------------------------------------
+
+BUGS FIXED
+
+    * The DRAM CAS latency now defaults to 2.5 for 500MHz 
+      operation.
+    * To work around a PASS1 bug (see the errata) some portions
+      of the multi-CPU startup have been changed.  See the
+      stuff in init_mips.S in the _SB1250_PASS1_WORKAROUNDS_ 
+      blocks.
+
+NEW FEATURES
+
+    * The build procedure now uses 'mkflashimage' to build
+      a header on the front of a flash image.  This is 
+      used to prevent you from flashing an invalid file
+      over a running CFE.
+    * Many improvements in the PCI/LDT configuration code.
+    * The DC21143 (Tulip) driver has been improved.
+    * The IDE driver has been revamped to perform a little
+      better and work in either endianness without 
+      unnecessary byte swapping.  
+    * The PCMCIA driver has been updated to support the SWARM
+    * A new switch "-p" is required on SETENV to set the
+      environment in the NVRAM.  It now defaults to storing
+      in RAM only unless this switch is supplied.
+    * The environment variable "STARTUP" can be used to run
+      some commands at boot time.
+    * You can put multiple commands on a command line by
+      separating them with semicolons
+    * The configuration switch can now configure some
+      aspects of CFE at run time.  See the manual.
+
+KNOWN PROBLEMS
+
+    * The flash update erases the entire device, not just the 
+      sectors it needs.
+    * IDE disks work on real hardware, but ATAPI devices don't.
+      The Generic Bus timing registers probably need to be tweaked.
+
+
+------------------------------------------------------------------------------
+RUNNING CFE UNDER THE FUNCTIONAL SIMULATOR
+------------------------------------------------------------------------------
+
+One goal for the functional simulator is for it to more-or-less completely
+emulate the functionality and peripherals available on the "SWARM"
+BCM12500 checkout board.  
+
+The configuration files in the swarm/ directory contain the current
+port of CFE to the evaluation board.
+
+Heed this warning:
+
+NOTE: CFE and the functional simulator are often out of sync, so be sure
+      to read these release notes for information on running CFE on
+      older versions of the simulator.
+
+* Compiling CFE for use under the functional simulator
+
+  Because the functional simulator is significantly slower than real
+  hardware (on a 900MHz PC it operates at the equivalent of 500Khz)
+  it is important to define the following symbols before compiling
+  the firmware (place this in the Makefile, see the comments there):
+
+	CFLAGS += -D_FUNCSIM_ -D_FASTEMUL_
+
+  You can also build the simulator in the 'sim' target directory
+  where these symbols are already defined.
+
+  These two preprocessor symbols _FUNCSIM_ and _FASTEMUL_ change the
+  timing loops to be appropriate for the slow processor and eliminate
+  certain parts of the cache initialization , since the simulated caches
+  start in an initialized state.  
+
+  Don't forget to remove this before running on real hardware!
+
+* Running CFE under the functional simulator.
+
+  To run the simulator using the new sb1250-run script (part of the
+  1.9.1 and later toolchains), you can do:
+
+	#!/bin/sh
+	sb1250-run \
+                --with-boot-flash-file cfe.srec \
+                --with-boot-flash-type ram \
+                --no-file \
+                --with-swarm-devs \
+		--with-sample-pci-devs \
+                --with-swarm-ide \
+                --with-swarm-ide-disk0-file disk0.dsk \
+                --with-swarm-ide-disk0-size 60 \
+                --with-memory-config 2x32 \
+                --with-swarm-rtc-eeprom-file x1240rom.bin 
+
+  In this configuration, CFE will have "null" back-ends for the Ethernet
+  and use standard I/O for the console.  It is a convenient way
+  to verify that CFE is operational, but it does not provide a good
+  way to load programs.  See the next section for configuring
+  network operation.
+
+  PCI and LDT configuration are supported under the 1.8.12 and newer
+  toolchains.
+
+* Simulated hardware description:
+
+This command and the devices file will configure the simulator as follows:
+
+   * 64MB of memory in one DIMM, as two 32MB DIMMs
+   * Two Serial Presence Detect modules at SMBus Channel 0 address 0x54
+   * A Xicor X1240 clock/eeprom module on SMBus Channel 1 (device "eeprom0")
+   * A four-character LED at 0x100A0000
+   * A 60MB IDE disk at 0x100B0000 (device "ide0")
+   * 4MB of flash at 0x1FC00000 (device "flash0")
+   * Two UARTs on the BCM12500 (devices "uart0", "uart1")
+   * Three Ethernet devices (devices "eth0", "eth1", and "eth2")
+
+   * The Xicor's EEPROM contents will be stored in a local file 
+     called "x1240rom.bin"
+   * The IDE disk's contents will be stored in the local file "disk0.dsk"
+   * The flash at 0x1FC00000 will read the file "cfe.srec" when the 
+     simulator starts.
+   * The flash at 0x1FC00000 is set to behave like SRAM.  You can use this
+     area to load other programs into the boot ROM and set breakpoints when 
+     running under GDB.  If you want the flash to behave like real flash, 
+     edit sb1250-run command above and change the flash-type to "flash"
+
+
+If successful, you should see the following when you start
+the simulator:
+
+----------------------------------------------------------------------
+
+# ./runcfe
+Disk 0: 60MB, 122 Cyl 16 Head 63 Sect: File disk1.dsk
+Loading S-Record file cfe.srec (offset 0x00000000)
+Finished loading file.
+sim: cpu model mips:sb-1, word size 64, addr size 64, big endian
+
+CFE version 0.0.10 for CSWARM-SIM (32bit,MP,BE)
+Build Date: Wed Jun 20 07:02:57 PDT 2001 (...)
+Copyright (C) 2000,2001 Broadcom Corporation.  All Rights Reserved.
+
+Initializing Arena.
+Initializing Devices.
+SysCfg: 0000000000480500 [PLL_DIV: 10, IOB0_DIV: CPUCLK/4, IOB1_DIV: CPUCLK/3]
+Config switch: 0
+CPU type 0x1040101: 500KHz
+Total memory: 0x4000000 bytes (64MB)
+
+Total memory used by CFE:  0x81E00000 - 0x81F06290 (1073808)
+Initialized Data:          0x81E00000 - 0x81E04020 (16416)
+BSS Area:                  0x81E04020 - 0x81E04290 (624)
+Local Heap:                0x81E04290 - 0x81F04290 (1048576)
+Stack Area:                0x81F04290 - 0x81F06290 (8192)
+Text (code) segment:       0x9FC00000 - 0x9FC26720 (157472)
+Boot area (physical):      0x01F07000 - 0x01F47000
+Relocation Factor:         I:00000000 - D:00000000
+
+CFE> 
+
+
+----------------------------------------------------------------------
+
+------------------------------------------------------------------------------
+NETWORK BOOTSTRAP
+------------------------------------------------------------------------------
+
+CFE includes an Ethernet driver, so you should be able to use
+the "simether-live" program to access the live network.  The program
+"simether-live" feeds packets from your real network into the simulated
+Ethernet devices of the functional simulator.  To use this, you will need
+to activate the simulator's "backends."  Invoke the simulator with the
+following command:
+
+	#!/bin/sh
+	sb1250-run \
+                --with-boot-flash-file cfe.srec \
+                --with-boot-flash-type ram \
+                --no-file \
+                --with-swarm-devs \
+		--with-sample-pci-devs \
+                --with-swarm-ide \
+		--with-sockets-for-io \
+		--stream-socket-base-addr "0.0.0.0:10100" \
+		--sim-wait-after-init \
+                --with-swarm-ide-disk0-file disk0.dsk \
+                --with-swarm-ide-disk0-size 60 \
+                --with-memory-config 2x32 \
+                --with-swarm-rtc-eeprom-file x1240rom.bin 
+
+
+The simulator wll start up as follows:
+
+----------------------------------------------------------------------
+/sb1250sio/backend_a: listening on TCP socket 0.0.0.0:10100
+/sb1250sio/backend_b: listening on TCP socket 0.0.0.0:10101
+/sb1250jtag/backend: listening on TCP socket 0.0.0.0:10102
+/sb1250eth@0x10064000/backend: listening on TCP socket 0.0.0.0:10103
+/sb1250eth@0x10065000/backend: listening on TCP socket 0.0.0.0:10104
+/sb1250eth@0x10066000/backend: listening on TCP socket 0.0.0.0:10105
+Disk 0: 60MB, 122 Cyl 16 Head 63 Sect: File disk0.dsk
+Loading S-Record file cfe.srec (offset 0x00000000)
+Finished loading file.
+sim: cpu model mips:sb-1, word size 64, addr size 64, big endian
+sb1-elf-run: initialization complete.
+sb1-elf-run: hit return to run...
+----------------------------------------------------------------------
+
+The messages from the simulator in the form 
+
+	/device/backend: listening on TCP socket 0.0.0.0:xxxxx
+
+let you know how to connect external programs to the simulator.
+
+In this case, the console will be connected to port 10100, since
+it is the serial port's "backend_a" device.  Start another window
+and run the "conn" program to connect to the serial port
+as follows:
+
+	$ conn localhost 10100
+
+The Ethernets will also be available as TCP sockets.  In this case,
+MAC 0 (ast SB1250 physical address 10064000) has a socket at
+10103.  To connect to this socket, create another shell window 
+and "su" to super-user mode.  Run the simether-live
+program as follows:
+
+	# simether-live localhost:10103 eth0
+
+(replace 'eth0' with the name of your Ethernet interface).
+
+Now, let the simulator begin execution by pressing "return"
+in the simulator's window.  CFE should start up and display
+its startup messages in the window you ran "conn" in.
+
+If you are running more than one copy of the simulator on 
+your network, you can set the hardware address for the Ethernet
+port by typing:
+
+	CFE> setenv ETH0_HWADDR 40:00:00:11:22:33
+
+(replace 11-22-33 with a unique value for your network).  If you
+have configured the EEPROM device file, this setting will be
+persistent across restarts of the simulator.
+
+If you configure a DHCP server on your network, you should be
+able to:
+
+	CFE> ifconfig eth0 -auto
+
+Or, you can manually configure the network:
+
+	CFE> ifconfig eth0 -addr=192.168.168.168 -mask=255.255.255.0 \
+             -gw=192.168.168.1 -dns=192.168.168.240
+
+(the backslash is just for this document - you should type the entire
+command on one line).
+
+Then, you can boot a program from your TFTP server:
+
+	CFE> boot -elf myserver:path/filename
+
+You'll need the -elf switch if the program you're loading is in
+ELF format.  Eventually, CFE will do this automatically.
+
+
+------------------------------------------------------------------------------
+LOADING CFE INTO THE FUNCTIONAL SIMULATOR'S DEBUGGER
+------------------------------------------------------------------------------
+
+The 'debugcfe' script in the sim/ directory will invoke
+sb1250-run to generate hardware description files, and then
+run CFE under the debugger and step to the first instruction.
+
+------------------------------------------------------------------------------
+SIMULATOR HACK: LOADING LARGE IMAGES
+------------------------------------------------------------------------------
+
+Loading large programs via TFTP can be painfully slow in the 
+simulator.  To work around this, the simulator's bsp includes
+an additional flash device called 'flash2'.  This flash is
+mapped in the address space normally occupied by the PCMCIA 
+adapter and is 64MB in size.
+
+You can instantiate a flash device in the simulator to live at
+that same address and pre-load a binary file into it.  CFE
+can then be used to boot that file using the "raw" file system
+loader.
+
+The files "runcfe" and "runcfe_withnet" in the sim/ directory
+have been provided for this purpose.  For example, to boot
+Linux in the simulator using this method, you can do:
+
+	./runcfe /path/to/my/vmlinux
+
+(this assumes you have "cfe.srec" in your current directory
+from a recent CFE build, you can modify the shell script
+if you want it located somewhere else).
+
+When CFE starts, you can do:
+
+	CFE> boot -elf -rawfs flash2:
+
+This will cause CFE to read bytes sequentially from the 
+flash2 device and parse them as an ELF file.  The additional
+hardware configuration information in the "flash2.m4" 
+file (loaded via the "runcfe" script) will cause the file
+you choose to live at the PCMCIA flash address 0xB1000000).
+
+You can also use this same technique to load elf files via
+the simulated disk, but it is much slower.  To do this, modify
+the shell script "runcfe" to point the disk container
+file (it's called "disk0.dsk" in the sample) to your binary.
+Then you can do:
+
+	CFE> boot -elf -rawfs ide0:
+
+to read the binary in from the disk.  Flash emulation is 
+much faster and is the preferred way to load binaries
+into the simulator quickly.

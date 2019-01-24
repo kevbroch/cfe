@@ -1,0 +1,64 @@
+/*
+ * This is the "template" linker script.  It gets run through the C preprocessor
+ * (via cpp) to construct the real linker script.
+ */
+
+/* our toolchain defines 'mips'.  Undefine it so it doesn't get expanded */
+
+#undef mips
+
+OUTPUT_ARCH(mips)
+ENTRY(vec_reset)
+
+SECTIONS
+{
+  . = CFE_TEXT_START;
+  .text : 
+   {
+     _ftext = . ;
+     eprol  =  .;
+    *(.text)
+    *(.dynamic)		/* Dynamic section wants to be here.  Why? */
+    *(.rodata)
+    *(.rodata.*)
+
+     _etext  =  .;
+   }
+
+  _gp = ALIGN(16) + 0x7FF0; 
+  .got : { *(.got.plt) *(.got) }
+  .data :
+  {
+    _fdata = .;
+    *(.rdata)
+    *(.data)
+    CONSTRUCTORS
+    *(.sdata)
+  }
+   . = ALIGN(16);
+   _edata  =  .;
+   _fbss = .;
+  .sbss : {
+    *(.sbss)
+    *(.scommon)
+  }
+  .bss : {
+    *(.bss)
+    *(COMMON)
+  }
+  . = ALIGN(16);
+   _end = .;
+
+   __reloc_table_start = .;
+  .dynsym : {
+	*(.dynsym)
+   }
+  .rel.dyn : {
+	*(.rel.dyn)
+   }
+   __reloc_table_end = .;
+
+   _image_end = .;
+
+}
+

@@ -1,0 +1,91 @@
+/*
+ * This is the "template" linker script.  It gets run through the C preprocessor
+ * (via cpp) to construct the real linker script.
+ */
+
+/* our toolchain defines 'powerpc'.  Undefine it so it doesn't get expanded */
+
+#undef powerpc
+
+OUTPUT_ARCH(powerpc)
+ENTRY(vec_reset)
+SECTIONS
+{
+  . = CFE_TEXT_START;
+  .text : 
+
+/* 
+ * Neither RAMAPP (CFE as app) nor BOOTRAM (ROM area is writeable) implies
+ * a boot ROM.
+ */
+
+#if (!CFG_RAMAPP) && !(CFG_BOOTRAM)
+   AT ( CFE_ROM_START )
+#endif
+   {
+     _ftext = . ;
+    *(.init)
+     eprol  =  .;
+    *(.text)
+
+#if CFG_RELOC
+	_FIXUP_TABLE_ = .;
+	*(.fixup)
+	_FIXUP_TABLE_END_ = .;
+    *(.got1)
+#endif
+
+    *(.fini)
+    *(.rodata)
+    *(.rodata.*)
+     _etext  =  .;
+   }
+
+#if CFG_RELOC
+  .reloc : 
+  {
+	*(.got)
+	_GOT2_TABLE_ = .;
+	*(.got2)
+	_GOT2_TABLE_END_ = .;
+  }
+  _GOT2_SIZE = (_GOT2_TABLE_END_ - _GOT2_TABLE_) >> 2;
+  _FIXUP_SIZE = (_FIXUP_TABLE_END_ - _FIXUP_TABLE_) >> 2;
+#endif
+
+/*
+ * If ROM, locate a copy of the data segment in the ROM area.  Otherwise,
+ * we are loading like a regular application so take data segment from
+ * current value of "dot".
+ */
+#if (!CFG_RAMAPP) && (!CFG_BOOTRAM) && !(CFG_RELOC)
+  .data CFE_DATA_START :
+    AT ( (LOADADDR(.text) + SIZEOF ( .text ) + 15) & 0xFFFFFFF0)
+#else
+  .data :
+#endif
+  {
+    _fdata = .;
+    *(.rdata)
+    *(.eh_frame)
+    *(.data)
+    CONSTRUCTORS
+    *(.sdata)
+    *(.sdata2)
+  }
+   . = ALIGN(16);
+   _edata  =  .;
+   _fbss = .;
+  .sbss : {
+    *(.sbss)
+    *(.scommon)
+  }
+  .bss : {
+    *(.bss)
+    *(COMMON)
+  }
+  . = ALIGN(16);
+   _end = .;
+   _romdata = LOADADDR(.data);
+}
+

@@ -1,0 +1,139 @@
+/*
+ * This is the "template" linker script.  It gets run through the C preprocessor
+ * (via cpp) to construct the real linker script.
+ */
+
+/* our toolchain defines 'i386'.  Undefine it so it doesn't get expanded */
+
+#undef i386
+
+OUTPUT_ARCH(i386)
+ENTRY(vec_reset)
+SECTIONS
+{
+  . = CFE_TEXT_START;
+  .text : 
+
+/* 
+ * Neither RAMAPP (CFE as app) nor BOOTRAM (ROM area is writeable) implies
+ * a boot ROM.
+ */
+
+#if (!CFG_RAMAPP) && !(CFG_BOOTRAM)
+   AT ( CFE_ROM_START )
+#endif
+   {
+     _ftext = . ;
+    *(.init)
+     eprol  =  .;
+    *(.text)
+
+    *(.fini)
+    *(.rodata)
+    *(.rodata.*)
+    *(.eh_frame)
+     _etext  =  .;
+
+/*
+ * Okay, evilness here.  If we're not relocating, we actually have
+ * separate segments for code vs data - this makes it easier to 
+ * identify what is text and what is data/bss so we can move the
+ * pieces out.
+ *
+ * If we are relocating, we move the whole mess in one blob, so
+ * dump everything into the "text" segment.  We do this by just
+ * eliminating the brackets and the segment definition for .data
+ */
+#if (!CFG_RELOC)
+   }
+
+/*
+ * If executing from ROM, locate a copy of the data segment in the ROM area.  Otherwise,
+ * we are loading like a regular application so take data segment from
+ * current value of "dot".
+ * For the normal reloc mode, we're going to bundle the code and data
+ * together so don't change the location counter here.
+ */
+#if (!CFG_RAMAPP) && (!CFG_BOOTRAM)
+  .data CFE_DATA_START :
+    AT ( (LOADADDR(.text) + SIZEOF ( .text ) + 15) & 0xFFFFFFF0)
+#else
+  .data :
+#endif
+  {
+#endif /* (!CFG_RELOC) */
+    _fdata = .;
+    *(.rdata)
+    *(.data)
+    CONSTRUCTORS
+    *(.sdata)
+  }
+   . = ALIGN(16);
+   _edata  =  .;
+   _fbss = .;
+  .sbss : {
+    *(.sbss)
+    *(.scommon)
+  }
+  .bss : {
+    *(.bss)
+    *(COMMON)
+  }
+  . = ALIGN(16);
+   _end = .;
+
+/*
+ * Define some symbols so we can find the code and data
+ * in the ROM and tell where to copy it into RAM.
+ */
+
+  _textrom = LOADADDR(.text) ;
+  _textram = ADDR(.text) ;
+#if (!CFG_RELOC)
+  _datarom = LOADADDR(.data) ;
+#endif
+
+/*
+ * The ".pminit_text" segment is special - it lives almost
+ * at the top of the ROM and it contains the code needed to 
+ * get the memory controller going, copy CFE into RAM, and
+ * start execution there.   We don't want this to ever 
+ * exceed 64K since some chipsets need special registers
+ * twiddled to get beyond a 64K segment, and the code to do
+ * that needs to live here.
+ *
+ * It's too bad we can't automatically calculate the adddress
+ * for this region given its size, so you'll have to manually
+ * reduce the address below if there is too much code in the
+ * .pminit_text segment.  The ROM and AT() address must be the same.
+ */
+
+  .pminit_text 0xFFFFE000 :
+    AT ( 0xFFFFE000 )
+  {
+     *(.pminit_text)
+  }
+
+  .altcpu_text 0x00022000 :
+    AT ( 0xFFFFD000 )
+  {
+     *(.altcpu_text)
+  }
+/*  _altcpu_ftext = LOADADDR(.altcpu_text);  */
+/*  _altcpu_etext = LOADADDR(.altcpu_text) + SIZEOF(.altcpu_text); */
+
+/* 
+ * The ".reset_text" segment is even more special.  It lives
+ * at the processor reset location and contains just a few
+ * instructions (disable interrupts and jump (16-bit) to the
+ * entry point in the ".pminit_text" segment.
+  */
+
+  .reset_text 0xFFFFFFF0 : 
+    AT ( 0xFFFFFFF0 )
+  {
+     *(.reset_text)
+  }
+
+}
+

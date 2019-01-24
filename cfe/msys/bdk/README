@@ -1,0 +1,13 @@
+
+This directory is where you typically will import the M-Systems BDK
+source tree.  You need to sign a license with M-Systems before
+you can get the code, so we're not providing it here.
+
+The file "Makefile" in the parent directory lists specific
+object files in the M-Systems BDK that are required for 
+CFE's DoC driver.  If the BDK changes you may need to edit
+the Makefile.
+
+
+
+

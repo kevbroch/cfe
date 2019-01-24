@@ -1,0 +1,74 @@
+/*
+ * This is the "template" linker script.  It gets run through the C preprocessor
+ * (via cpp) to construct the real linker script.
+ */
+
+/* our toolchain defines 'mips'.  Undefine it so it doesn't get expanded */
+
+#undef mips
+
+#ifndef ZIPSTART_TEXT_START
+#define ZIPSTART_TEXT_START 0x9fc00000
+#endif
+#ifndef ZIPSTART_ROM_START
+#define ZIPSTART_ROM_START  0xbfc00000
+#endif
+#ifndef ZIPSTART_DATA_START
+#define ZIPSTART_DATA_START 0x80080000		/* 512 KB */
+#endif
+
+OUTPUT_ARCH(mips)
+ENTRY(vec_reset)
+
+SECTIONS
+{
+  . = ZIPSTART_TEXT_START;
+  .text : 
+
+   AT ( ZIPSTART_ROM_START )
+   {
+     _ftext = . ;
+    *(.init)
+     eprol  =  .;
+    *(.text)
+
+    *(.fini)
+    *(.rodata)
+    *(.cfebin)
+     _etext  =  .;
+
+   }
+
+/*
+ * If ROM, locate a copy of the data segment in the ROM area.  Otherwise,
+ * we are loading like a regular application so take data segment from
+ * current value of "dot".
+ */
+  .data ZIPSTART_DATA_START :
+    AT ( (LOADADDR(.text) + SIZEOF ( .text ) + 15) & 0xFFFFFFF0)
+  {
+    _gp = ALIGN(16) + 0x7FF0; 
+    _fdata = .;
+    *(.rdata)
+    *(.data)
+    CONSTRUCTORS
+    *(.sdata)
+  }
+   . = ALIGN(16);
+   _edata  =  .;
+   _fbss = .;
+  .sbss : {
+    *(.sbss)
+    *(.scommon)
+  }
+  .bss : {
+    *(.bss)
+    *(COMMON)
+  }
+  . = ALIGN(16);
+   _end = .;
+   _elf_start = LOADADDR(.data) + SIZEOF(.data);
+
+
+}
+
